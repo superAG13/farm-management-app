@@ -1,7 +1,5 @@
 import "./header.css";
 import {AiFillHome} from "react-icons/ai";
-import {CiWheat} from "react-icons/ci";
-import {LuWheat} from "react-icons/lu";
 import {GiWheat} from "react-icons/gi";
 
 function Header() {
