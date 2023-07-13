@@ -23,6 +23,7 @@
   text-decoration: none;
   color: white;
   padding-left: 8px;
+  font-size: 1.05rem;
 }
 .logo:hover {
   cursor: pointer;

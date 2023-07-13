@@ -7,7 +7,7 @@ function Header() {
     <header className="main-header">
       <div className="container">
         <div className="logo-box">
-          <GiWheat size="24px" />
+          <GiWheat size="26px" />
           <a href="/pages/home" className="logo">
             MyFarm.net
           </a>
