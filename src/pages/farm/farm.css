@@ -1,0 +1,8 @@
+.farm .container {
+  width: 1320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 0 auto;
+}
