@@ -1,11 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import Header from "./components/header/Header.jsx";
 import "./index.css";
-import Farm from "./pages/farm/Farm.jsx";
+import {BrowserRouter} from "react-router-dom";
+import App from "./App";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Header />
-    <Farm />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </React.StrictMode>
 );
