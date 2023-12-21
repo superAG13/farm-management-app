@@ -1,20 +1,11 @@
 import {MapContainer, Marker, TileLayer} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import {useEffect, useState} from "react";
 import WeatherForecast from "../../components/WeatherForecast";
+import useGeoLocation from "../../hooks/useGeoLocation";
+import DataFetchingComponent from "../../components/DataFetchingComponent";
 
 function Home() {
-  const [latitude, setLatitude] = useState(null);
-  const [longitude, setLongitude] = useState(null);
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setLatitude(position.coords.latitude);
-        setLongitude(position.coords.longitude);
-      });
-    }
-  }, []);
-
+  const {latitude, longitude} = useGeoLocation();
   return (
     <div className="flex flex-col w-5/6 h-1/3 px-8 space-beetween">
       {latitude && longitude && (
@@ -24,6 +15,7 @@ function Home() {
         </MapContainer>
       )}
       <WeatherForecast />
+      <DataFetchingComponent />
     </div>
   );
 }
