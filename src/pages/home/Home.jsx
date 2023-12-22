@@ -2,7 +2,6 @@ import {MapContainer, Marker, TileLayer} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import WeatherForecast from "../../components/WeatherForecast";
 import useGeoLocation from "../../hooks/useGeoLocation";
-import DataFetchingComponent from "../../components/DataFetchingComponent";
 
 function Home() {
   const {latitude, longitude} = useGeoLocation();
@@ -15,7 +14,6 @@ function Home() {
         </MapContainer>
       )}
       <WeatherForecast />
-      <DataFetchingComponent />
     </div>
   );
 }

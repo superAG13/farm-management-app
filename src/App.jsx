@@ -16,6 +16,7 @@ import Operatorzy from "./pages/gospodarstwo/Operatorzy";
 import "leaflet-draw/dist/leaflet.draw.css";
 import Maszyny from "./pages/gospodarstwo/Maszyny";
 import {LocationProvider} from "./components/LocationContext";
+import EdytujPole from "./pages/gospodarstwo/EdytujPole";
 
 const App = () => {
   return (
@@ -34,6 +35,7 @@ const App = () => {
           <Route path="/dodaj-pole" element={<DodajPole />} />
           <Route path="/dodaj-uprawe" element={<DodajUprawe />} />
           <Route path="/dodaj-prace" element={<DodajPrace />} />
+          <Route path="/edytuj-pole/:id" element={<EdytujPole />} />
           <Route path="/operatorzy" element={<Operatorzy />} />
           <Route path="/maszyny" element={<Maszyny />} />
           <Route path="*" element={<h1>404</h1>} />

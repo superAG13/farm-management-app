@@ -12,15 +12,14 @@ function Pola() {
     // Fetch the data when the component mounts
     fetch("/api/data")
       .then((response) => response.json())
-      // .then((data) => setFields(data))
       .then((data) => {
-        console.log("Fetched fields:", data); // Check the structure of fetched data
+        // console.log("Fetched fields:", data); // Check the structure of fetched data
         setFields(data);
       })
       .catch((error) => console.error("Error fetching fields:", error));
   }, []);
   const handleDelete = (dzialkaId) => {
-    // Assuming dzialkaId is the ID of the record you want to delete
+    console.log("Deleting field with ID:", dzialkaId);
     fetch(`/api/data/${dzialkaId}`, {
       method: "DELETE",
     })
@@ -74,6 +73,9 @@ function Pola() {
                 <td className="px-6 py-4 whitespace-no-wrap border-b border-r border-gray-500 text-sm leading-5 text-center align-middle">{field.uprawa}</td>
                 <td className="px-6 py-4 whitespace-no-wrap border-b border-r border-gray-500 text-sm leading-5 text-center align-middle">{field.area}</td>
                 <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-sm leading-5 text-right align-middle">
+                  <Link to={`/edytuj-pole/${field.dzialka_id}`} className="text-indigo-600 hover:text-indigo-900 px-2">
+                    <button>Edytuj</button>
+                  </Link>
                   <button onClick={() => handleDelete(field.dzialka_id)} className="text-red-600 hover:text-red-900 mx-auto">
                     Usuń
                   </button>

@@ -33,7 +33,7 @@ router.post("/data", (req, res) => {
 router.delete("/data/:id", (req, res) => {
   const {id} = req.params;
 
-  const query = "DELETE FROM farm.dzialki WHERE dzialka_id = ?";
+  const query = "DELETE FROM dzialki WHERE dzialka_id = ?";
   const values = [id];
 
   db.query(query, values, (err, result) => {
@@ -42,6 +42,40 @@ router.delete("/data/:id", (req, res) => {
       return;
     }
     res.status(200).send({message: "Record deleted successfully", id});
+  });
+});
+router.put("/data/:id", (req, res) => {
+  const {id} = req.params;
+  const {nazwa, obreb, numer_ewidencyjny, area, polygon, uzytkownik_id} = req.body;
+
+  const query = `
+    UPDATE dzialki 
+    SET nazwa = ?, obreb = ?, numer_ewidencyjny = ?, area = ?, polygon = ?, uzytkownik_id = ?
+    WHERE dzialka_id = ?
+  `;
+  const values = [nazwa, obreb, numer_ewidencyjny, area, polygon, uzytkownik_id, id];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      res.status(500).send("Error updating the record");
+      return;
+    }
+    res.status(200).send({message: "Record updated successfully", id});
+  });
+});
+
+router.get("/data/:id", (req, res) => {
+  const {id} = req.params;
+
+  const query = "SELECT * FROM dzialki WHERE dzialka_id = ?";
+  const values = [id];
+
+  db.query(query, values, (err, results) => {
+    if (err) {
+      res.status(500).send("Database error");
+      return;
+    }
+    res.json(results);
   });
 });
 
