@@ -3,6 +3,7 @@ import {MapContainer, TileLayer, WMSTileLayer} from "react-leaflet";
 import "leaflet-draw/dist/leaflet.draw.css";
 import LeafletDraw from "../../components/LeafletDraw";
 import useGeoLocation from "../../hooks/useGeoLocation";
+import {useNavigate} from "react-router-dom";
 const DodajPole = () => {
   const {latitude, longitude} = useGeoLocation();
   const [fieldData, setFieldData] = useState({
@@ -10,7 +11,7 @@ const DodajPole = () => {
     obreb: "",
     numer_ewidencyjny: "",
   });
-
+  const navigate = useNavigate();
   const [area, setArea] = useState("Wyrysuj obszar działki");
 
   const handleAreaChange = (newArea) => {
@@ -23,6 +24,36 @@ const DodajPole = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Construct the field data object
+    const fieldDataToSend = {
+      ...fieldData,
+      area, // Assuming 'area' holds the value for the field area
+    };
+
+    // Send the field data to the backend
+    fetch("/api/data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(fieldDataToSend),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Field added:", data);
+        // Navigate to the '/pola' route after successful insertion
+        navigate("/pola");
+      })
+      .catch((error) => {
+        console.error("Error adding field:", error);
+        // Optionally handle the error state here, such as showing an error message
+      });
   };
 
   return (
@@ -82,17 +113,14 @@ const DodajPole = () => {
             />
           </div>
           <div className="flex items-center justify-end">
-            <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-4">
+            <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
               Dodaj
             </button>
-            <button
+            {/* <button
               type="button"
-              onClick={() => {
-                /* delete logic */
-              }}
               className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
               Usuń
-            </button>
+            </button> */}
           </div>
         </form>
       </div>

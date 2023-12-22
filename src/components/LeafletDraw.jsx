@@ -44,7 +44,7 @@ function LeafletDraw({onAreaChange}) {
         // Convert to hectares (1 hectare = 10,000 square meters)
         const areaHectares = areaMeters / 10000;
         console.log(`Area: ${areaHectares.toFixed(2)} hectares`);
-        onAreaChange(`${areaHectares.toFixed(2)} ha`);
+        onAreaChange(`${areaHectares.toFixed(2)}`);
       }
     });
 
