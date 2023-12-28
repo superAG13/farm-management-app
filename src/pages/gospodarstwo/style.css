@@ -1,0 +1,29 @@
+.leaflet-container {
+  height: 55vh;
+  width: 100%;
+  border-radius: 1rem;
+  margin: 0 auto;
+  margin-top: 1rem;
+}
+.scrollable-table {
+  overflow-y: scroll;
+  max-height: 288px;
+  display: block;
+  float: left;
+  width: max-content;
+}
+thead tr {
+  display: block;
+}
+thead {
+  display: block;
+  width: 100%;
+}
+tbody {
+  overflow-y: scroll;
+  display: block;
+  width: 100%;
+}
+.leaflet-control ~ .leaflet-control {
+  display: none;
+}

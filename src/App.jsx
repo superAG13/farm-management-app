@@ -9,7 +9,7 @@ import Pola from "./pages/gospodarstwo/Pola";
 import Uprawy from "./pages/gospodarstwo/Uprawy";
 import Postep from "./pages/gospodarstwo/Postep";
 import DodajPole from "./pages/gospodarstwo/DodajPole";
-import "/src/pages/gospodarstwo/mapy.css";
+import "/src/pages/gospodarstwo/style.css";
 import DodajUprawe from "./pages/gospodarstwo/DodajUprawe";
 import DodajPrace from "./pages/gospodarstwo/DodajPrace";
 import Operatorzy from "./pages/gospodarstwo/Operatorzy";
@@ -17,6 +17,7 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import Maszyny from "./pages/gospodarstwo/Maszyny";
 import {LocationProvider} from "./components/LocationContext";
 import EdytujPole from "./pages/gospodarstwo/EdytujPole";
+import EdytujUprawe from "./pages/gospodarstwo/EdytujUprawe";
 
 const App = () => {
   return (
@@ -36,6 +37,7 @@ const App = () => {
           <Route path="/dodaj-uprawe" element={<DodajUprawe />} />
           <Route path="/dodaj-prace" element={<DodajPrace />} />
           <Route path="/edytuj-pole/:id" element={<EdytujPole />} />
+          <Route path="/edytuj-uprawe/:id" element={<EdytujUprawe />} />
           <Route path="/operatorzy" element={<Operatorzy />} />
           <Route path="/maszyny" element={<Maszyny />} />
           <Route path="*" element={<h1>404</h1>} />

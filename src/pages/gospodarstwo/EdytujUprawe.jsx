@@ -1,21 +1,32 @@
-import {useState, useEffect} from "react";
+import React, {useState, useEffect} from "react";
+import {useParams, useNavigate} from "react-router-dom";
 import {MapContainer, TileLayer, WMSTileLayer} from "react-leaflet";
 import "leaflet-draw/dist/leaflet.draw.css";
 import LeafletDraw from "../../components/LeafletDraw";
 import useGeoLocation from "../../hooks/useGeoLocation";
-import {useNavigate} from "react-router-dom";
 import {GeoJSON} from "react-leaflet";
-import {usePopularCrops} from "../../hooks/usePopularCrops";
-const DodajUprawe = () => {
+import usePopularCrops from "../../hooks/usePopularCrops";
+
+const EdytujUprawe = () => {
   const popularCrops = usePopularCrops();
-  const {latitude, longitude} = useGeoLocation();
+  const {id} = useParams();
   const navigate = useNavigate();
+  const {latitude, longitude} = useGeoLocation();
   const [uprawaData, setUprawaData] = useState({
     numer_ewidencyjny: "",
     uprawa: "",
+    powierzchnia_dzialki: "",
+    powierzchnia_uprawy: "",
+    polygon: "",
+    uzytkownik_id: "",
   });
   const [uprawa, setUprawa] = useState("");
   const [isOtherUprawa, setIsOtherUprawa] = useState(false);
+  const [powierzchnia_uprawy, setPowierzchniaUprawy] = useState("Wyrysuj obszar uprawy");
+  const [powierzchnia_dzialki, setPowierzchniaDzialki] = useState(0);
+  const [polygonData, setPolygonData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [fieldData, setFieldData] = useState([]);
 
   const handleUprawaChange = (e) => {
     const selectedUprawa = e.target.value;
@@ -23,55 +34,13 @@ const DodajUprawe = () => {
     setUprawaData({...uprawaData, uprawa: selectedUprawa});
     setIsOtherUprawa(selectedUprawa === "inne");
   };
-
-  const [powierzchnia_dzialki, setPowierzchniaDzialki] = useState(0);
-  const [fieldData, setFieldData] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api/area");
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        setFieldData(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, []);
-
-  const [powierzchnia_uprawy, setPowierzchniaUprawy] = useState("Wyrysuj obszar uprawy");
-  const [polygon, setPolygon] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [polygonData, setPolygonData] = useState(null);
-  const [mapKey, setMapKey] = useState(Date.now());
-
   const handleAreaChange = (newArea) => {
     setPowierzchniaUprawy(newArea);
   };
+  const [polygon, setPolygon] = useState(null);
 
-  const handleChangeNumerEwidencyjny = (e) => {
-    const numerEwidencyjny = e.target.value;
-    setUprawaData({...uprawaData, numer_ewidencyjny: numerEwidencyjny});
-  };
-
-  useEffect(() => {
-    const selectedFieldData = fieldData.find((field) => field.numer_ewidencyjny === uprawaData.numer_ewidencyjny);
-    setPolygonData(null);
-    if (selectedFieldData) {
-      setPowierzchniaDzialki(selectedFieldData.area);
-      setPolygonData(JSON.parse(selectedFieldData.polygon));
-    } else {
-      setPolygonData(null);
-    }
-    setMapKey(Date.now());
-  }, [uprawaData.numer_ewidencyjny, fieldData]);
-
-  const handleSavePolygon = (polygonData) => {
-    const parsedPolygon = JSON.parse(polygonData);
+  const handleSavePolygon = (polygon) => {
+    const parsedPolygon = JSON.parse(polygon);
     parsedPolygon.properties = {
       numer_ewidencyjny: uprawaData.numer_ewidencyjny,
       uprawa: uprawaData.uprawa,
@@ -80,11 +49,7 @@ const DodajUprawe = () => {
     setPolygon(JSON.stringify(parsedPolygon));
   };
 
-  const handleChange = (e) => {
-    handleChangeNumerEwidencyjny(e);
-    setUprawaData({...uprawaData, [e.target.name]: e.target.value});
-  };
-
+  const [errorMessage, setErrorMessage] = useState("");
   const validateForm = () => {
     let isValid = true;
     let errors = {};
@@ -116,7 +81,7 @@ const DodajUprawe = () => {
       errors.location = "Invalid location data.";
     }
 
-    const cultivationArea = parseFloat(powierzchnia_uprawy);
+    const cultivationArea = parseFloat(uprawaData.powierzchnia_uprawy);
     console.log(cultivationArea);
     if (isNaN(cultivationArea) || cultivationArea <= 0) {
       isValid = false;
@@ -130,6 +95,63 @@ const DodajUprawe = () => {
     return isValid;
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/area");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setFieldData(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    fetch(`/api/uprawy/${id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setUprawaData({
+          numer_ewidencyjny: data[0].numer_ewidencyjny,
+          uprawa: data[0].uprawa,
+          powierzchnia_dzialki: data[0].powierzchnia_dzialki,
+          powierzchnia_uprawy: data[0].powierzchnia_uprawy,
+          uzytkownik_id: data[0].uzytkownik_id,
+        });
+        if (data[0].polygon) {
+          setPolygon(JSON.parse(data[0].polygon));
+        }
+      })
+      .catch((error) => console.error("Error fetching field:", error));
+  }, [id]);
+  const [mapKey, setMapKey] = useState(Date.now());
+
+  const handleChangeNumerEwidencyjny = (e) => {
+    const numerEwidencyjny = e.target.value;
+    setUprawaData({...uprawaData, numer_ewidencyjny: numerEwidencyjny});
+  };
+
+  useEffect(() => {
+    const selectedFieldData = fieldData.find((field) => field.numer_ewidencyjny === uprawaData.numer_ewidencyjny);
+    setPolygonData(null);
+    if (selectedFieldData) {
+      setPowierzchniaDzialki(selectedFieldData.area);
+      setPolygonData(JSON.parse(selectedFieldData.polygon));
+    } else {
+      setPolygonData(null);
+    }
+    setMapKey(Date.now());
+  }, [uprawaData.numer_ewidencyjny, fieldData]);
+
+  const handleChange = (e) => {
+    handleChangeNumerEwidencyjny(e);
+    setUprawaData({...uprawaData, [e.target.name]: e.target.value});
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -137,38 +159,32 @@ const DodajUprawe = () => {
     if (!validateForm()) {
       return;
     }
-
+    console.log(uprawaData);
     setIsLoading(true);
 
-    const uprawaDataToSend = {
-      ...uprawaData,
-      powierzchnia_dzialki,
-      powierzchnia_uprawy,
-      polygon,
-    };
-    console.log(uprawaDataToSend);
-    try {
-      const response = await fetch("/api/uprawy", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(uprawaDataToSend),
+    fetch(`/api/uprawy/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(uprawaData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then(() => {
+        navigate("/uprawy");
+      })
+      .catch((error) => {
+        console.error("Error updating uprawa:", error);
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      navigate("/uprawy");
-    } catch (error) {
-      console.error("Error adding uprawa:", error);
-      setErrorMessage(`Error adding uprawa: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
   };
-
+  if (uprawaData === null) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className="flex border rounded-md bg-white h-3/6 m-4 px-4 py-6 flex-row w-5/6">
       <div className="flex-1">
@@ -199,7 +215,7 @@ const DodajUprawe = () => {
             <select
               id="uprawa"
               name="uprawa"
-              value={uprawa}
+              value={uprawaData.uprawa}
               onChange={handleUprawaChange}
               className="w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block sm:text-base border rounded-md">
               <option value="">Wybierz uprawę</option>
@@ -227,7 +243,7 @@ const DodajUprawe = () => {
             <div className="flex-grow relative">
               <input
                 type="text"
-                value={powierzchnia_uprawy}
+                value={uprawaData.powierzchnia_uprawy}
                 readOnly
                 className="w-full pl-2 pr-10 border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block sm:text-base border rounded-md"
               />
@@ -243,9 +259,9 @@ const DodajUprawe = () => {
           <div className="flex items-center justify-end">
             <button
               type="submit"
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               disabled={isLoading}>
-              {isLoading ? "Adding..." : "Dodaj"}
+              {isLoading ? "Edytowanie..." : "Edytuj"}
             </button>
           </div>
         </form>
@@ -253,8 +269,12 @@ const DodajUprawe = () => {
       <div className="flex flex-col w-2/3 ">
         <h1 className="text-base font-bold opacity-80">Wyrysuj obszar uprawy</h1>
         {latitude && longitude && (
-          <MapContainer center={[latitude, longitude]} zoom={13}>
-            <LeafletDraw onAreaChange={handleAreaChange} onSavePolygon={handleSavePolygon} />
+          <MapContainer center={[latitude, longitude]} zoom={12}>
+            {polygon && (
+              <>
+                <LeafletDraw onAreaChange={handleAreaChange} onSavePolygon={handleSavePolygon} existingPolygonData={polygon} />
+              </>
+            )}
             <TileLayer attribution="Google Maps Satellite" url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}" />
             <WMSTileLayer
               url="https://integracja.gugik.gov.pl/cgi-bin/KrajowaIntegracjaEwidencjiGruntow"
@@ -264,7 +284,18 @@ const DodajUprawe = () => {
               format="image/png"
               transparent={true}
             />
-            {polygonData && <GeoJSON key={mapKey} data={polygonData} />}
+            {polygonData && (
+              <GeoJSON
+                key={mapKey}
+                data={polygonData}
+                style={{
+                  color: "white", // sets the border color to white
+                  weight: 2, // sets the border thickness
+                  fillColor: "transparent", // optional, sets the fill color
+                  fillOpacity: 0, // optional, sets the fill opacity
+                }}
+              />
+            )}
           </MapContainer>
         )}
       </div>
@@ -272,4 +303,4 @@ const DodajUprawe = () => {
   );
 };
 
-export default DodajUprawe;
+export default EdytujUprawe;

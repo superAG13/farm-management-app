@@ -4,6 +4,7 @@ import {MapContainer, TileLayer, WMSTileLayer} from "react-leaflet";
 import "leaflet-draw/dist/leaflet.draw.css";
 import LeafletDraw from "../../components/LeafletDraw";
 import useGeoLocation from "../../hooks/useGeoLocation";
+import {GeoJSON} from "react-leaflet";
 
 const EdytujPole = () => {
   const {id} = useParams();
@@ -17,9 +18,18 @@ const EdytujPole = () => {
     polygon: "",
     uzytkownik_id: "",
   });
+  const [area, setArea] = useState("");
 
+  const handleAreaChange = (newArea) => {
+    setArea(newArea);
+  };
+  const [polygon, setPolygon] = useState(null);
+
+  const handleSavePolygon = (polygonData) => {
+    setPolygon(polygonData);
+  };
   useEffect(() => {
-    fetch(`/api/data/${id}`)
+    fetch(`/api/pola/${id}`)
       .then((response) => response.json())
       .then((data) => {
         console.log("Fetched data:", data[0]); // Check the structure and content
@@ -31,6 +41,9 @@ const EdytujPole = () => {
           polygon: data[0].polygon,
           uzytkownik_id: data[0].uzytkownik_id,
         });
+        if (data[0].polygon) {
+          setPolygon(JSON.parse(data[0].polygon));
+        }
       })
       .catch((error) => console.error("Error fetching field:", error));
   }, [id]);
@@ -41,9 +54,8 @@ const EdytujPole = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Submitting field data:", fieldData); // Log to check the data being submitted
 
-    fetch(`/api/data/${id}`, {
+    fetch(`/api/pola/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -133,8 +145,8 @@ const EdytujPole = () => {
       <div className="flex flex-col w-2/3 ">
         <h1 className="text-base font-bold opacity-80">Wyrysuj obszar działki</h1>
         {latitude && longitude && (
-          <MapContainer center={[latitude, longitude]} zoom={13}>
-            {/* <LeafletDraw onAreaChange={handleAreaChange} /> */}
+          <MapContainer center={[latitude, longitude]} zoom={12}>
+            <LeafletDraw onAreaChange={handleAreaChange} onSavePolygon={handleSavePolygon} />
             <TileLayer attribution="Google Maps Satellite" url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}" />
             <WMSTileLayer
               url="https://integracja.gugik.gov.pl/cgi-bin/KrajowaIntegracjaEwidencjiGruntow"
@@ -144,6 +156,7 @@ const EdytujPole = () => {
               format="image/png"
               transparent={true}
             />
+            {fieldData.polygon && <GeoJSON data={polygon} />}
           </MapContainer>
         )}
       </div>

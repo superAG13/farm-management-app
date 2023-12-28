@@ -6,54 +6,82 @@ import useGeoLocation from "../../hooks/useGeoLocation";
 import {useNavigate} from "react-router-dom";
 const DodajPole = () => {
   const {latitude, longitude} = useGeoLocation();
+  const navigate = useNavigate();
   const [fieldData, setFieldData] = useState({
     nazwa: "",
     obreb: "",
     numer_ewidencyjny: "",
   });
-  const navigate = useNavigate();
   const [area, setArea] = useState("Wyrysuj obszar działki");
+  const [polygon, setPolygon] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleAreaChange = (newArea) => {
     setArea(newArea);
+  };
+
+  const handleSavePolygon = (polygonData) => {
+    const parsedPolygon = JSON.parse(polygonData);
+    parsedPolygon.properties = {
+      numer_ewidencyjny: fieldData.numer_ewidencyjny,
+    };
+    setPolygon(JSON.stringify(parsedPolygon));
   };
 
   const handleChange = (e) => {
     setFieldData({...fieldData, [e.target.name]: e.target.value});
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const validateForm = () => {
+    // Simple validation logic, can be expanded as needed
+    if (!fieldData.nazwa || !fieldData.obreb || !fieldData.numer_ewidencyjny) {
+      setErrorMessage("Wypełnij wszystkie pola.");
+      return false;
+    }
+    if (!polygon) {
+      setErrorMessage("Narysuj obszar działki na mapie.");
+      return false;
+    }
+    return true;
+  };
 
-    // Construct the field data object
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage("");
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
     const fieldDataToSend = {
       ...fieldData,
-      area, // Assuming 'area' holds the value for the field area
+      area,
+      polygon,
     };
 
-    // Send the field data to the backend
-    fetch("/api/data", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(fieldDataToSend),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Field added:", data);
-        // Navigate to the '/pola' route after successful insertion
-        navigate("/pola");
-      })
-      .catch((error) => {
-        console.error("Error adding field:", error);
-        // Optionally handle the error state here, such as showing an error message
+    try {
+      const response = await fetch("/api/pola", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(fieldDataToSend),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      navigate("/pola");
+    } catch (error) {
+      console.error("Error adding field:", error);
+      setErrorMessage(`Error adding field: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -105,22 +133,24 @@ const DodajPole = () => {
             <label htmlFor="powierzchnia" className="block text-sm font-medium mb-1">
               Powierzchnia
             </label>
-            <input
-              type="text"
-              value={area}
-              readOnly
-              className="w-full px-2 border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block sm:text-base border rounded-md"
-            />
+            <div className="flex-grow relative">
+              <input
+                type="text"
+                value={area}
+                readOnly
+                className="w-full pl-2 pr-10 border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block sm:text-base border rounded-md"
+              />
+              <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5">ha</span>
+            </div>
           </div>
+          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
           <div className="flex items-center justify-end">
-            <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-              Dodaj
+            <button
+              type="submit"
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              disabled={isLoading}>
+              {isLoading ? "Adding..." : "Dodaj"}
             </button>
-            {/* <button
-              type="button"
-              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-              Usuń
-            </button> */}
           </div>
         </form>
       </div>
@@ -128,7 +158,7 @@ const DodajPole = () => {
         <h1 className="text-base font-bold opacity-80">Wyrysuj obszar działki</h1>
         {latitude && longitude && (
           <MapContainer center={[latitude, longitude]} zoom={13}>
-            <LeafletDraw onAreaChange={handleAreaChange} />
+            <LeafletDraw onAreaChange={handleAreaChange} onSavePolygon={handleSavePolygon} />
             <TileLayer attribution="Google Maps Satellite" url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}" />
             <WMSTileLayer
               url="https://integracja.gugik.gov.pl/cgi-bin/KrajowaIntegracjaEwidencjiGruntow"
