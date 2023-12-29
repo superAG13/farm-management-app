@@ -27,3 +27,10 @@ tbody {
 .leaflet-control ~ .leaflet-control {
   display: none;
 }
+.scrollable-table-magazyn {
+  overflow-y: scroll;
+  max-height: 800px;
+  display: block;
+  float: left;
+  width: max-content;
+}

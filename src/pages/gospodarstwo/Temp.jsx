@@ -1,89 +1,48 @@
 import {useState} from "react";
 import {FaCamera} from "react-icons/fa";
 import {useEffect} from "react";
-import {useMachines} from "../../hooks/useMachines";
 
-const YearPicker = ({selectedYear, handleChange}) => {
-  const currentYear = new Date().getFullYear();
-  const years = Array.from(new Array(70), (val, index) => currentYear - index);
-
-  return (
-    <select
-      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      value={selectedYear}
-      onChange={handleChange}>
-      <option value="">Rok produkcji</option>
-      {years.map((year) => (
-        <option key={year} value={year}>
-          {year}
-        </option>
-      ))}
-    </select>
-  );
-};
-const convertDateToYYYYMMDD = (dateString) => {
-  if (!dateString) return "";
-
-  const date = new Date(dateString);
-  let month = "" + (date.getMonth() + 1),
-    day = "" + date.getDate(),
-    year = date.getFullYear();
-
-  if (month.length < 2) month = "0" + month;
-  if (day.length < 2) day = "0" + day;
-
-  return [year, month, day].join("-");
-};
-
-function Maszyny() {
-  const [selectedYear, setSelectedYear] = useState("");
-  const agriculturalMachines = useMachines();
-  const [maszynyData, setMaszynyData] = useState([]);
-  const [maszyna, setMaszyna] = useState({
-    rodzaj_maszyny: "",
-    nazwa: "",
-    operator: "",
-    rok_produkcji: "",
-    masa: "",
-    szerokosc_robocza: "",
-    moc: "",
-    data_przegladu: "",
-    data_ubezpieczenia: "",
-    ustawienia: "",
+function Operatorzy() {
+  const stanowiska = [
+    "Właściciel",
+    "Zarządca",
+    "Operator",
+    "Pracownik Polowy",
+    "Weterynarz",
+    "Specjalista ds. Marketingu i Sprzedaży Produktów Rolnych",
+    "Magazynier",
+    "Kierowca",
+  ];
+  const [operator, setOperator] = useState({
+    imie: "",
+    nazwisko: "",
+    stanowisko: "",
+    ulica: "",
+    numer_domu: "",
+    kod_pocztowy: "",
+    miejscowosc: "",
+    wojewodztwo: "",
+    kraj: "",
+    telefon: "",
+    email: "",
+    jednostka_rozliczeniowa: "",
+    kwota_za_jednostke: "",
   });
+  const [operatorzyData, setOperatorzyData] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const [rodzaj_maszyny, setRodzaj] = useState("");
-  const [isOtherRodzaj, setIsOtherRodzaj] = useState(false);
-  const [operator, setOperator] = useState("");
-  const [operatorData, setOperatorData] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api/operator");
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        setOperatorData(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, []);
-  const handleChangeOperator = (e) => {
-    setOperator(e.target.value);
-  };
-  const handleRodzajChange = (e) => {
-    const selectedRodzaj = e.target.value;
-    setRodzaj(selectedRodzaj);
-    setMaszyna({...maszyna, rodzaj_maszyny: selectedRodzaj});
-    setIsOtherRodzaj(selectedRodzaj === "inne");
+  const [stanowisko, setStanowisko] = useState("");
+  const [isOtherStanowisko, setIsOtherStanowisko] = useState(false);
+
+  const handleStanowiskoChange = (e) => {
+    const stanowiskoRodzaj = e.target.value;
+    setStanowisko(selectedRodzaj);
+    setOperator({...operator, rodzaj_maszyny: selectedRodzaj});
+    setIsOtherStanowisko(selectedStanowisko === "inne");
   };
 
   const handleChange = (e) => {
-    setMaszyna({...maszyna, [e.target.name]: e.target.value});
+    setOperator({...operator, [e.target.name]: e.target.value});
   };
 
   const [previewUrl, setPreviewUrl] = useState("");
@@ -93,7 +52,7 @@ function Maszyny() {
       const file = event.target.files[0];
       setSelectedPhoto(file);
       const previewUrl = URL.createObjectURL(file);
-      setPreviewUrl(previewUrl); // Update the state to trigger re-render
+      setPreviewUrl(previewUrl);
     }
   };
   useEffect(() => {
@@ -104,23 +63,25 @@ function Maszyny() {
     };
   }, [previewUrl]);
 
-  const fillFormWithSelectedData = (maszynaData) => {
-    setMaszyna({
-      rodzaj_maszyny: maszynaData.rodzaj_maszyny,
-      nazwa: maszynaData.nazwa,
-      operator: maszynaData.operator,
-      rok_produkcji: maszynaData.rok_produkcji,
-      masa: maszynaData.masa,
-      szerokosc_robocza: maszynaData.szerokosc_robocza,
-      moc: maszynaData.moc,
-      data_przegladu: convertDateToYYYYMMDD(maszynaData.data_przegladu),
-      data_ubezpieczenia: convertDateToYYYYMMDD(maszynaData.data_ubezpieczenia),
-      ustawienia: maszynaData.ustawienia,
+  const fillFormWithSelectedData = (operatorData) => {
+    setOperator({
+      imie: operatorData.imie,
+      nazwisko: operatorData.nazwisko,
+      stanowisko: operatorData.stanowisko,
+      ulica: operatorData.ulica,
+      numer_domu: operatorData.numer_domu,
+      kod_pocztowy: operatorData.kod_pocztowy,
+      miejscowosc: operatorData.miejscowosc,
+      wojewodztwo: operatorData.wojewodztwo,
+      kraj: operatorData.kraj,
+      telefon: operatorData.telefon,
+      email: operatorData.email,
+      jednostka_rozliczeniowa: operatorData.jednostka_rozliczeniowa,
+      kwota_za_jednostke: operatorData.kwota_za_jednostke,
     });
-    const photoUrlFromDatabase = `http://localhost:5000/uploads/${maszynaData.img}`;
+    const photoUrlFromDatabase = `http://localhost:5000/uploads/${operatorData.img}`;
     setPreviewUrl(photoUrlFromDatabase);
-    setSelectedId(maszynaData.maszyna_id);
-    setOperator(maszynaData.operator);
+    setSelectedId(operatorData.opearotr_id);
   };
 
   const handleSubmit = async (e) => {
@@ -134,12 +95,12 @@ function Maszyny() {
       formData.append("image", selectedPhoto);
     }
     // Append other form data to formData
-    Object.keys(maszyna).forEach((key) => {
-      formData.append(key, maszyna[key]);
+    Object.keys(operator).forEach((key) => {
+      formData.append(key, operator[key]);
     });
 
     // Determine the correct URL and HTTP method
-    const url = selectedId ? `/api/maszyny/${selectedId}` : "/api/maszyny";
+    const url = selectedId ? `/api/operatorzy/${selectedId}` : "/api/operatorzy";
     const method = selectedId ? "PUT" : "POST";
 
     try {
@@ -156,22 +117,24 @@ function Maszyny() {
 
       // Reset the form and state
       setSelectedId(null);
-      setMaszyna({
-        rodzaj_maszyny: "",
-        nazwa: "",
-        operator: "",
-        rok_produkcji: "",
-        masa: "",
-        szerokosc_robocza: "",
-        moc: "",
-        data_przegladu: "",
-        data_ubezpieczenia: "",
-        ustawienia: "",
+      setOperator({
+        imie: "",
+        nazwisko: "",
+        stanowisko: "",
+        ulica: "",
+        numer_domu: "",
+        kod_pocztowy: "",
+        miejscowosc: "",
+        wojewodztwo: "",
+        kraj: "",
+        telefon: "",
+        email: "",
+        jednostka_rozliczeniowa: "",
+        kwota_za_jednostke: "",
       });
       setPreviewUrl(null);
       setSelectedPhoto(null);
-      setOperator("");
-      loadMaszynyData();
+      loadOperatorzyData();
     } catch (error) {
       console.error("Error:", error);
     }
@@ -180,7 +143,7 @@ function Maszyny() {
   const handleDelete = async () => {
     if (selectedId) {
       try {
-        const response = await fetch(`/api/maszyny/${selectedId}`, {
+        const response = await fetch(`/api/operatorzy/${selectedId}`, {
           method: "DELETE",
         });
 
@@ -190,49 +153,52 @@ function Maszyny() {
 
         // Resetuj formularz i odśwież listę maszyn
         setSelectedId(null);
-        setMaszyna({
-          rodzaj_maszyny: "",
-          nazwa: "",
-          operator: "",
-          rok_produkcji: "",
-          masa: "",
-          szerokosc_robocza: "",
-          moc: "",
-          data_przegladu: "",
-          data_ubezpieczenia: "",
-          ustawienia: "",
+        setOperator({
+          imie: "",
+          nazwisko: "",
+          stanowisko: "",
+          ulica: "",
+          numer_domu: "",
+          kod_pocztowy: "",
+          miejscowosc: "",
+          wojewodztwo: "",
+          kraj: "",
+          telefon: "",
+          email: "",
+          jednostka_rozliczeniowa: "",
+          kwota_za_jednostke: "",
         });
         setPreviewUrl(null);
         setSelectedPhoto(null);
-        setOperator("");
-        loadMaszynyData();
+        loadOperatorzyData();
       } catch (error) {
         console.error("Error:", error);
       }
     }
   };
 
-  const loadMaszynyData = async () => {
+  const loadOperatorzyData = async () => {
     try {
-      const response = await fetch("/api/maszyny");
+      const response = await fetch("/api/operatorzy");
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      setMaszynyData(data);
+      setOperatorzyData(data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
   useEffect(() => {
-    loadMaszynyData();
+    loadOperatorzyData();
   }, []);
+
   const [searchTerm, setSearchTerm] = useState("");
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value.toLowerCase()); // Convert to lowercase for case-insensitive comparison
   };
-  const filteredMaszynyData = maszynyData.filter((item) => item.nazwa.toLowerCase().includes(searchTerm));
+  const filteredOperatorzyData = operatorzyData.filter((item) => item.imie.toLowerCase().includes(searchTerm) || item.nazwisko.toLowerCase().includes(searchTerm));
   return (
     <div className="flex flex-row w-2/3 justify-between mx-auto h-screen">
       <div className="flex flex-col p-5 w-1/3">
@@ -247,17 +213,17 @@ function Maszyny() {
           />
         </div>
         <div className="w-full bg-white shadow-md rounded h-full">
-          {filteredMaszynyData.map((maszynaData) => (
+          {filteredOperatorzyData.map((operatorzyData) => (
             <div
-              key={maszynaData.maszyna_id}
+              key={operatorzyData.opearotr_id}
               className="flex items-center w-full px-4 pt-2 pb-2 mb-2 border-b-2 border-gray-700"
-              onClick={() => fillFormWithSelectedData(maszynaData)}>
+              onClick={() => fillFormWithSelectedData(operatorzyData)}>
               <div className="flex-shrink-0 h-14 w-14">
-                <img className="h-14 w-14 rounded" src={`http://localhost:5000/uploads/${maszynaData.img}`} alt="Photo" />
+                <img className="h-14 w-14 rounded" src={`http://localhost:5000/uploads/${operatorzyData.img}`} alt="Photo" />
               </div>
               <div className="ml-4">
-                <div className="text-xl font-bold text-black">{maszynaData.nazwa}</div>
-                <p className="text-gray-500">{maszynaData.rodzaj_maszyny}</p>
+                <div className="text-xl font-bold text-black">{(operatorzyData.imie, operatorzyData.nazwisko)}</div>
+                <p className="text-gray-500">{operatorzyData.stanowisko}</p>
               </div>
             </div>
           ))}
@@ -276,7 +242,7 @@ function Maszyny() {
                   name="rodzaj_maszyny"
                   value={maszyna.rodzaj_maszyny}
                   onChange={handleRodzajChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                  className="w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block sm:text-base border rounded-md">
                   <option value="">Wybierz rodzaj maszyny</option>
                   {agriculturalMachines.map((type, index) => (
                     <option key={index} value={type}>
@@ -318,7 +284,7 @@ function Maszyny() {
                   name="operator"
                   value={operator}
                   onChange={handleChangeOperator}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                  className="w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block sm:text-base border rounded-md">
                   <option value="">Wybierz operatora</option>
                   {operatorData.map((op, index) => (
                     <option key={index} value={`${op.imie} ${op.nazwisko}`}>
@@ -515,4 +481,4 @@ function Maszyny() {
   );
 }
 
-export default Maszyny;
+export default Operatorzy;

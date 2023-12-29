@@ -18,7 +18,11 @@ import Maszyny from "./pages/gospodarstwo/Maszyny";
 import {LocationProvider} from "./components/LocationContext";
 import EdytujPole from "./pages/gospodarstwo/EdytujPole";
 import EdytujUprawe from "./pages/gospodarstwo/EdytujUprawe";
-
+import Srodki from "./pages/gospodarstwo/Srodki";
+import DodajMagazyn from "./pages/gospodarstwo/DodajMagazyn";
+import EdytujMagazyn from "./pages/gospodarstwo/EdytujMagazyn";
+import Rosliny from "./pages/gospodarstwo/Rosliny";
+import Nawozy from "./pages/gospodarstwo/Nawozy";
 const App = () => {
   return (
     <div className="flex flex-row">
@@ -40,6 +44,11 @@ const App = () => {
           <Route path="/edytuj-uprawe/:id" element={<EdytujUprawe />} />
           <Route path="/operatorzy" element={<Operatorzy />} />
           <Route path="/maszyny" element={<Maszyny />} />
+          <Route path="/srodki" element={<Srodki />} />
+          <Route path="/dodaj-magazyn" element={<DodajMagazyn />} />
+          <Route path="/edytuj-magazyn/:id" element={<EdytujMagazyn />} />
+          <Route path="/rosliny" element={<Rosliny />} />
+          <Route path="/nawozy" element={<Nawozy />} />
           <Route path="*" element={<h1>404</h1>} />
         </Routes>
       </LocationProvider>
