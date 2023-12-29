@@ -1,7 +1,7 @@
 import {Routes, Route} from "react-router-dom";
-import NavBar from "src/components/NavBar";
-import Home from "./pages/home/Home";
-import Gospodarstwo from "./pages/gospodarstwo/Gospodarstwo";
+import NavBar from "src/components/NavBar.jsx";
+import Home from "./pages/home/Home.jsx";
+import Gospodarstwo from "./pages/gospodarstwo/Gospodarstwo.jsx";
 import Finanse from "./pages/finanse/Finanse";
 import Kalendarz from "./pages/kalendarz/Kalendarz";
 import Profil from "./pages/profil/Profil";
