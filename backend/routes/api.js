@@ -670,4 +670,246 @@ router.get("/magazyn/:id", (req, res) => {
   });
 });
 
+router.get("/zbiory", (req, res) => {
+  db.query("SELECT * FROM zbiory", (err, results) => {
+    if (err) {
+      res.status(500).send("Database error");
+      return;
+    }
+    res.json(results);
+  });
+});
+
+router.delete("/zbiory/:id", (req, res) => {
+  const {id} = req.params;
+
+  const query = "DELETE FROM zbiory WHERE zbiory_id = ?";
+  const values = [id];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      res.status(500).send("Error deleting the record");
+      return;
+    }
+    res.status(200).send({message: "Record deleted successfully", id});
+  });
+});
+router.get("/zbiory/:id", (req, res) => {
+  const {id} = req.params;
+
+  const query = "SELECT * FROM zbiory WHERE zbiory_id = ?";
+  const values = [id];
+
+  db.query(query, values, (err, results) => {
+    if (err) {
+      res.status(500).send("Database error");
+      return;
+    }
+    res.json(results);
+  });
+});
+
+router.post("/zbiory", (req, res) => {
+  const {kwit_wagowy, data_sprzedazy, wilgotnosc, masa, cena_bazowa} = req.body;
+  let result;
+  if (wilgotnosc > 35) {
+    result = (wilgotnosc - 30) * 15;
+  } else {
+    result = (wilgotnosc - 30) * 10;
+  }
+  const cena = cena_bazowa - result;
+  const wartosc = (cena * masa) / 1000;
+
+  const query = "INSERT INTO zbiory (kwit_wagowy, data_sprzedazy, wilgotnosc, masa, cena_bazowa, cena, wartosc) VALUES (?, ?, ?, ?, ?, ?, ?)";
+  const values = [kwit_wagowy, data_sprzedazy, wilgotnosc, masa, cena_bazowa, cena, wartosc];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      res.status(500).send("Error saving the 'zbiory'");
+      console.error(err);
+      return;
+    }
+    res.status(201).json({id: result.insertId, ...req.body});
+  });
+});
+
+router.put("/zbiory/:id", (req, res) => {
+  const {id} = req.params;
+  const {kwit_wagowy, data_sprzedazy, wilgotnosc, masa, cena_bazowa, uzytkownik_id} = req.body;
+  let result;
+  if (wilgotnosc > 35) {
+    result = (wilgotnosc - 30) * 15;
+  } else {
+    result = (wilgotnosc - 30) * 10;
+  }
+  const cena = cena_bazowa - result;
+  const wartosc = (cena * masa) / 1000;
+
+  const query = `
+    UPDATE zbiory 
+    SET kwit_wagowy = ?, data_sprzedazy = ?, wilgotnosc = ?, masa = ?, cena_bazowa = ?, cena = ?, wartosc = ?, uzytkownik_id = ?
+    WHERE zbiory_id = ?
+  `;
+  const values = [kwit_wagowy, data_sprzedazy, wilgotnosc, masa, cena_bazowa, cena, wartosc, uzytkownik_id, id];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      res.status(500).send("Error updating the record");
+      return;
+    }
+    res.status(200).send({message: "Record updated successfully", id});
+  });
+});
+
+router.get("/finanse", (req, res) => {
+  db.query("SELECT * FROM finanse", (err, results) => {
+    if (err) {
+      res.status(500).send("Database error");
+      return;
+    }
+    res.json(results);
+  });
+});
+
+router.delete("/finanse/:id", (req, res) => {
+  const {id} = req.params;
+
+  const query = "DELETE FROM finanse WHERE dokument_id = ?";
+  const values = [id];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      res.status(500).send("Error deleting the record");
+      return;
+    }
+    res.status(200).send({message: "Record deleted successfully", id});
+  });
+});
+
+router.post("/finanse", (req, res) => {
+  const {nazwa, rodzaj_dokumentu, opis, wartosc, data} = req.body;
+
+  const query = "INSERT INTO finanse (nazwa,rodzaj_dokumentu,opis,wartosc,data) VALUES (?, ?, ?, ?,?)";
+  const values = [nazwa, rodzaj_dokumentu, opis, wartosc, data];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      res.status(500).send("Error saving the 'magazyn'");
+      console.error(err);
+      return;
+    }
+    res.status(201).json({id: result.insertId, ...req.body});
+  });
+});
+
+router.put("/finanse/:id", (req, res) => {
+  const {id} = req.params;
+  const {nazwa, rodzaj_dokumentu, opis, wartosc, data, uzytkownik_id} = req.body;
+
+  const query = `
+    UPDATE finanse
+    SET nazwa = ?, rodzaj_dokumentu = ?, opis = ?, wartosc = ?, data = ?, uzytkownik_id = ?
+    WHERE dokument_id = ?
+  `;
+  const values = [nazwa, rodzaj_dokumentu, opis, wartosc, data, uzytkownik_id, id];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      res.status(500).send("Error updating the record");
+      return;
+    }
+    res.status(200).send({message: "Record updated successfully", id});
+  });
+});
+
+router.get("/finanse/:id", (req, res) => {
+  const {id} = req.params;
+
+  const query = "SELECT * FROM finanse WHERE dokument_id = ?";
+  const values = [id];
+
+  db.query(query, values, (err, results) => {
+    if (err) {
+      res.status(500).send("Database error");
+      return;
+    }
+    res.json(results);
+  });
+});
+
+router.post("/kalendarz", (req, res) => {
+  const {title, start, end, numer_ewidencyjny, operator, opis} = req.body;
+
+  const query = "INSERT INTO kalendarz (title, start, end, numer_ewidencyjny, operator, opis) VALUES (?, ?, ?, ?,?,?)";
+  const values = [title, start, end, numer_ewidencyjny, operator, opis];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      res.status(500).send("Error saving the 'kalendarz'");
+      console.error(err);
+      return;
+    }
+    res.status(201).json({id: result.insertId, ...req.body});
+  });
+});
+
+router.get("/kalendarz", (req, res) => {
+  db.query("SELECT * FROM kalendarz", (err, results) => {
+    if (err) {
+      res.status(500).send("Database error");
+      return;
+    }
+    res.json(results);
+  });
+});
+
+router.delete("/kalendarz/:id", (req, res) => {
+  const {id} = req.params;
+
+  const query = "DELETE FROM kalendarz WHERE kalendarz_id = ?";
+  const values = [id];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      res.status(500).send("Error deleting the record");
+      return;
+    }
+    res.status(200).send({message: "Record deleted successfully", id});
+  });
+});
+router.get("/kalendarz/:id", (req, res) => {
+  const {id} = req.params;
+
+  const query = "SELECT * FROM kalendarz WHERE kalendarz_id = ?";
+  const values = [id];
+
+  db.query(query, values, (err, results) => {
+    if (err) {
+      res.status(500).send("Database error");
+      return;
+    }
+    res.json(results);
+  });
+});
+
+router.put("/kalendarz/:id", (req, res) => {
+  const {id} = req.params;
+  const {title, start, end, numer_ewidencyjny, operator, opis, uzytkownik_id} = req.body;
+
+  const query = `
+    UPDATE kalendarz
+    SET title = ?, start = ?, end = ?, numer_ewidencyjny = ?, operator = ?,opis = ?, uzytkownik_id = ?
+    WHERE kalendarz_id = ?
+  `;
+  const values = [title, start, end, numer_ewidencyjny, operator, opis, uzytkownik_id, id];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      res.status(500).send("Error updating the record");
+      return;
+    }
+    res.status(200).send({message: "Record updated successfully", id});
+  });
+});
+
 module.exports = router;

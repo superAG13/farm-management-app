@@ -23,6 +23,13 @@ import DodajMagazyn from "./pages/gospodarstwo/DodajMagazyn";
 import EdytujMagazyn from "./pages/gospodarstwo/EdytujMagazyn";
 import Rosliny from "./pages/gospodarstwo/Rosliny";
 import Nawozy from "./pages/gospodarstwo/Nawozy";
+import Zbiory from "./pages/gospodarstwo/Zbiory";
+import DodajZbiory from "./pages/gospodarstwo/DodajZbiory";
+import EdytujZbiory from "./pages/gospodarstwo/EdytujZbiory";
+import DodajFinanse from "./pages/finanse/DodajFinanse";
+import EdytujFinanse from "./pages/finanse/EdytujFinanse";
+import DodajKalendarz from "./pages/kalendarz/DodajKalendarz";
+import EdytujKalendarz from "./pages/kalendarz/EdytujKalendarz";
 const App = () => {
   return (
     <div className="flex flex-row">
@@ -49,6 +56,13 @@ const App = () => {
           <Route path="/edytuj-magazyn/:id" element={<EdytujMagazyn />} />
           <Route path="/rosliny" element={<Rosliny />} />
           <Route path="/nawozy" element={<Nawozy />} />
+          <Route path="/zbiory" element={<Zbiory />} />
+          <Route path="/dodaj-zbiory" element={<DodajZbiory />} />
+          <Route path="/edytuj-zbiory/:id" element={<EdytujZbiory />} />
+          <Route path="/dodaj-finanse" element={<DodajFinanse />} />
+          <Route path="/edytuj-finanse/:id" element={<EdytujFinanse />} />
+          <Route path="/dodaj-kalendarz" element={<DodajKalendarz />} />
+          <Route path="/edytuj-kalendarz/:id" element={<EdytujKalendarz />} />
           <Route path="*" element={<h1>404</h1>} />
         </Routes>
       </LocationProvider>
