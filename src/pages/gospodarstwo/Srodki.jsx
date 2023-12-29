@@ -19,6 +19,26 @@ function Srodki() {
       })
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
+  const handleDelete = (magazynId) => {
+    fetch(`/api/magazyn/${magazynId}`, {
+      method: "DELETE",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data.message); // "Record deleted successfully"
+        // Update the state to remove the item from the list, if necessary
+        setSrodki(srodki.filter((srodek) => srodek.magazyn_id !== magazynId));
+      })
+      .catch((error) => {
+        console.error("Error deleting srodek:", error);
+        // Handle error
+      });
+  };
   return (
     <div className="flex flex-col w-5/6 h-5/6 px-8 justify-beetween">
       <div className="flex flex-row text-base font-bold opacity-80 py-2 justify-between">
