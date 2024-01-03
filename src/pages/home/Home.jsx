@@ -19,29 +19,31 @@ function groupByDzialkaId(data) {
 
   return Object.values(grouped);
 }
-//"className: bg-none text-center text-base text-white font-bold",
+
 function AddLabels({polygonData, areaThreshold, minZoomLevel}) {
   const map = useMap();
   let labelMarkers = [];
+
   const updateLabels = () => {
     // Clear existing labels
     labelMarkers.forEach((marker) => marker.remove());
     labelMarkers = [];
+
+    if (!polygonData) return;
 
     polygonData.features.forEach((feature) => {
       if (feature.properties && feature.properties.numer_ewidencyjny) {
         const polygon = L.polygon(feature.geometry.coordinates[0].map((coord) => [coord[1], coord[0]]));
         const area = L.GeometryUtil.geodesicArea(polygon.getLatLngs()[0]);
 
-        // Add label if the area is above the threshold or if zoom level is high enough
         if (area >= areaThreshold || map.getZoom() >= minZoomLevel) {
           const center = polygon.getBounds().getCenter();
           const label = L.marker(center, {
             icon: L.divIcon({
-              className: "bg-none text-sm text-white font-bold", // Replace with your CSS class
+              className: "bg-none text-sm text-white font-bold",
               html: feature.properties.numer_ewidencyjny,
             }),
-          }).addTo(map);
+          });
           labelMarkers.push(label);
         }
       }
@@ -49,27 +51,36 @@ function AddLabels({polygonData, areaThreshold, minZoomLevel}) {
   };
 
   useEffect(() => {
-    map.on("overlayadd", (event) => {
+    const onOverlayAdd = (event) => {
       if (event.name === "Pola") {
-        updateLabels(event.layer);
+        updateLabels();
+        labelMarkers.forEach((marker) => marker.addTo(map));
       }
-    });
+    };
 
-    map.on("overlayremove", (event) => {
+    const onOverlayRemove = (event) => {
       if (event.name === "Pola") {
         labelMarkers.forEach((marker) => marker.remove());
-        labelMarkers = [];
       }
-    });
+    };
+
+    map.on("overlayadd", onOverlayAdd);
+    map.on("overlayremove", onOverlayRemove);
+
+    // Check if 'Pola' is initially checked and add labels if so
+    updateLabels();
+    labelMarkers.forEach((marker) => marker.addTo(map));
 
     return () => {
-      map.off("overlayadd");
-      map.off("overlayremove");
+      map.off("overlayadd", onOverlayAdd);
+      map.off("overlayremove", onOverlayRemove);
+      labelMarkers.forEach((marker) => marker.remove());
     };
   }, [map, polygonData, areaThreshold, minZoomLevel]);
 
   return null;
 }
+
 const WeatherWidget = () => {
   useEffect(() => {
     // Funkcja do ładowania skryptu SDK
