@@ -109,6 +109,9 @@ function Operatorzy() {
       const response = await fetch(url, {
         method: method,
         body: formData,
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
       });
 
       // Check if the request was successful
@@ -146,6 +149,9 @@ function Operatorzy() {
       try {
         const response = await fetch(`/api/operatorzy/${selectedId}`, {
           method: "DELETE",
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
         });
 
         if (!response.ok) {
@@ -180,7 +186,11 @@ function Operatorzy() {
 
   const loadOperatorzyData = async () => {
     try {
-      const response = await fetch("/api/operatorzy");
+      const response = await fetch("/api/operatorzy", {
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }

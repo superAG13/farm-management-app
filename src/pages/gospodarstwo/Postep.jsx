@@ -66,7 +66,13 @@ function Postep() {
   const [polygonData, setPolygonData] = useState(null);
   const [activePolygon, setActivePolygon] = useState(null);
   const handleMouseEnter = (postepId) => {
-    fetch(`/api/poly-prace/${postepId}`)
+    fetch(`/api/poly-prace/${postepId}`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         setActivePolygon(JSON.parse(data[0].polygon));
@@ -77,7 +83,13 @@ function Postep() {
       });
   };
   useEffect(() => {
-    fetch("/api/prace")
+    fetch("/api/prace", {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         const formattedData = data.map((item) => {
@@ -88,7 +100,13 @@ function Postep() {
         });
         setPrace(formattedData);
         setIsScrollable(data.length > 5);
-        return fetch("/api/polygons");
+        return fetch("/api/polygons", {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            "Content-Type": "application/json",
+          },
+        });
       })
       .then((response) => response.json())
       .then((data) => {
@@ -111,6 +129,10 @@ function Postep() {
   const handleDelete = (pracaId) => {
     fetch(`/api/prace/${pracaId}`, {
       method: "DELETE",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
     })
       .then((response) => {
         if (!response.ok) {

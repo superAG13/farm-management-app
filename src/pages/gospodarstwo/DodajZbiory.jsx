@@ -20,6 +20,7 @@ const DodajZbiory = () => {
       const response = await fetch("/api/zbiory", {
         method: "POST",
         headers: {
+          authorization: `Bearer ${localStorage.getItem("authToken")}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(zbiory),

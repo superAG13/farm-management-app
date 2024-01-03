@@ -75,13 +75,25 @@ function Pola() {
 
   useEffect(() => {
     let fetchedFields = [];
-    fetch("/api/pola")
+    fetch("/api/pola", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         fetchedFields = groupByDzialkaId(data);
         setFields(fetchedFields);
         setIsScrollable(fetchedFields.length > 5);
-        return fetch("/api/polygons");
+        return fetch("/api/polygons", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            "Content-Type": "application/json",
+          },
+        });
       })
       .then((response) => response.json())
       .then((data) => {
@@ -105,6 +117,10 @@ function Pola() {
   const handleDelete = (dzialkaId) => {
     fetch(`/api/pola/${dzialkaId}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
     })
       .then((response) => {
         if (!response.ok) {

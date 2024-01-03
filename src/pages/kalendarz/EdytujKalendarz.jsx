@@ -18,7 +18,12 @@ const EdytujKalendarz = () => {
     opis: "",
   });
   useEffect(() => {
-    fetch(`/api/kalendarz/${id}`)
+    fetch(`/api/kalendarz/${id}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         console.log("Fetched data:", data[0]); // Check the structure and content
@@ -41,7 +46,11 @@ const EdytujKalendarz = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/operator");
+        const response = await fetch("/api/operator", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -58,7 +67,11 @@ const EdytujKalendarz = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/area");
+        const response = await fetch("/api/area", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -79,6 +92,7 @@ const EdytujKalendarz = () => {
     fetch(`/api/kalendarz/${id}`, {
       method: "PUT",
       headers: {
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(kalendarz),

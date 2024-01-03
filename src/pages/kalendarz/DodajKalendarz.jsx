@@ -18,7 +18,12 @@ const DodajKalendarz = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/operator");
+        const response = await fetch("/api/operator", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -35,7 +40,12 @@ const DodajKalendarz = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/area");
+        const response = await fetch("/api/area", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -61,6 +71,7 @@ const DodajKalendarz = () => {
       const response = await fetch("/api/kalendarz", {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(kalendarzDataToSend),

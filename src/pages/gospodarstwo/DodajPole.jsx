@@ -66,6 +66,7 @@ const DodajPole = () => {
       const response = await fetch("/api/pola", {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(fieldDataToSend),

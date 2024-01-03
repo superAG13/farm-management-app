@@ -5,7 +5,13 @@ function Nawozy() {
   const [nawozy, setNawozy] = useState([]);
   const [isScrollable, setIsScrollable] = useState(false);
   useEffect(() => {
-    fetch("/api/nawozy")
+    fetch("/api/nawozy", {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         const formattedData = data.map((item) => {
@@ -22,6 +28,10 @@ function Nawozy() {
   const handleDelete = (magazynId) => {
     fetch(`/api/magazyn/${magazynId}`, {
       method: "DELETE",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
     })
       .then((response) => {
         if (!response.ok) {

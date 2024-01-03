@@ -15,13 +15,24 @@ function Uprawy() {
   const [polygonData, setPolygonData] = useState(null);
   const [fieldData, setFieldData] = useState(null);
   useEffect(() => {
-    fetch("/api/uprawy")
+    fetch("/api/uprawy", {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         setUprawy(data);
         setIsScrollable(data.length > 5);
-        return fetch("/api/poly-uprawy");
+        return fetch("/api/poly-uprawy", {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            "Content-Type": "application/json",
+          },
+        });
       })
       .then((response) => response.json())
       .then((data) => {
@@ -31,7 +42,6 @@ function Uprawy() {
           if (uprawa) {
             feature.properties = {...feature.properties, ...uprawa};
           }
-          console.log(feature);
           return feature;
         });
 
@@ -39,7 +49,13 @@ function Uprawy() {
           type: "FeatureCollection",
           features: features,
         });
-        return fetch("/api/polygons");
+        return fetch("/api/polygons", {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            "Content-Type": "application/json",
+          },
+        });
       })
       .then((response) => response.json())
       .then((data) => {

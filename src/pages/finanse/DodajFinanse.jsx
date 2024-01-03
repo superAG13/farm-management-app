@@ -20,6 +20,7 @@ const DodajFinanse = () => {
       const response = await fetch("/api/finanse", {
         method: "POST",
         headers: {
+          authorization: `Bearer ${localStorage.getItem("authToken")}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(finanse),

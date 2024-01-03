@@ -24,7 +24,13 @@ const EdytujZbiory = () => {
     cena_bazowa: "",
   });
   useEffect(() => {
-    fetch(`/api/zbiory/${id}`)
+    fetch(`/api/zbiory/${id}`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         console.log("Fetched data:", data[0]); // Check the structure and content
@@ -48,6 +54,7 @@ const EdytujZbiory = () => {
     fetch(`/api/zbiory/${id}`, {
       method: "PUT",
       headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(zbiory),

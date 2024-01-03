@@ -6,7 +6,13 @@ function Finanse() {
   const [isScrollable, setIsScrollable] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   useEffect(() => {
-    fetch("/api/finanse")
+    fetch("/api/finanse", {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         const formattedData = data.map((item) => {
@@ -37,6 +43,10 @@ function Finanse() {
   const handleDelete = (finanseId) => {
     fetch(`/api/finanse/${finanseId}`, {
       method: "DELETE",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
     })
       .then((response) => {
         if (!response.ok) {
@@ -145,7 +155,7 @@ function Finanse() {
         <table className="min-w-full">
           <tbody className="divide-y divide-gray-200 overflow-hidden">
             <tr>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Koszta</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Koszty</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">{summary.koszta.toFixed(2)} zł</td>
             </tr>
             <tr>

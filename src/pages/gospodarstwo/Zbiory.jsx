@@ -5,7 +5,13 @@ function Zbiory() {
   const [zbiory, setZbiory] = useState([]);
   const [isScrollable, setIsScrollable] = useState(false);
   useEffect(() => {
-    fetch("/api/zbiory")
+    fetch("/api/zbiory", {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         const formattedData = data.map((item) => {
@@ -22,6 +28,10 @@ function Zbiory() {
   const handleDelete = (zbiorId) => {
     fetch(`/api/zbiory/${zbiorId}`, {
       method: "DELETE",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
     })
       .then((response) => {
         if (!response.ok) {

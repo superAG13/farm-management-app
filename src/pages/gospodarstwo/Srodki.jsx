@@ -5,7 +5,13 @@ function Srodki() {
   const [srodki, setSrodki] = useState([]);
   const [isScrollable, setIsScrollable] = useState(false);
   useEffect(() => {
-    fetch("/api/srodki")
+    fetch("/api/srodki", {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         const formattedData = data.map((item) => {
@@ -22,6 +28,10 @@ function Srodki() {
   const handleDelete = (magazynId) => {
     fetch(`/api/magazyn/${magazynId}`, {
       method: "DELETE",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
     })
       .then((response) => {
         if (!response.ok) {

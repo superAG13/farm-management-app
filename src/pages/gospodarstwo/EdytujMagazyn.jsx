@@ -28,7 +28,13 @@ const EdytujMagazyn = () => {
     zalecana_dawka: "",
   });
   useEffect(() => {
-    fetch(`/api/magazyn/${id}`)
+    fetch(`/api/magazyn/${id}`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         console.log("Fetched data:", data[0]); // Check the structure and content
@@ -55,6 +61,7 @@ const EdytujMagazyn = () => {
     fetch(`/api/magazyn/${id}`, {
       method: "PUT",
       headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(magazyn),

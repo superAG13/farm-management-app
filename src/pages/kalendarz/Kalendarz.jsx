@@ -29,7 +29,12 @@ function Kalendarz(props) {
     setShowModal(true);
   };
   useEffect(() => {
-    fetch("/api/kalendarz")
+    fetch("/api/kalendarz", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         const formattedData = data.map((item) => {
@@ -47,6 +52,10 @@ function Kalendarz(props) {
     try {
       const response = await fetch(`/api/kalendarz/${eventId}`, {
         method: "DELETE", // or the correct method according to your API
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) throw new Error("Error deleting event");

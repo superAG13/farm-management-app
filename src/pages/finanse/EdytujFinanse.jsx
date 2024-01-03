@@ -24,7 +24,13 @@ const EdytujFinanse = () => {
     data: "",
   });
   useEffect(() => {
-    fetch(`/api/finanse/${id}`)
+    fetch(`/api/finanse/${id}`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         console.log("Fetched data:", data[0]); // Check the structure and content
@@ -47,6 +53,7 @@ const EdytujFinanse = () => {
     fetch(`/api/finanse/${id}`, {
       method: "PUT",
       headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(finanse),

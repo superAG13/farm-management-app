@@ -29,7 +29,13 @@ const DodajUprawe = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/area");
+        const response = await fetch("/api/area", {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            "Content-Type": "application/json",
+          },
+        });
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -151,6 +157,7 @@ const DodajUprawe = () => {
       const response = await fetch("/api/uprawy", {
         method: "POST",
         headers: {
+          authorization: `Bearer ${localStorage.getItem("authToken")}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(uprawaDataToSend),

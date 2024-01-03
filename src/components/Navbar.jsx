@@ -3,6 +3,9 @@ import {GiWheat} from "react-icons/gi";
 import {HiUser} from "react-icons/hi2";
 import {IoCalendarOutline} from "react-icons/io5";
 import {Link} from "react-router-dom";
+const logout = () => {
+  localStorage.removeItem("authToken");
+};
 const Navbar = () => {
   return (
     <nav className="bg-green-800 z-9999 flex flex-col w-64 h-screen text-white divide-y-2 pt-4 relative">
@@ -11,7 +14,7 @@ const Navbar = () => {
         <h1 className=" font-bold text-xl px-3">MYFARM.NET</h1>
       </div>
       <div>
-        <Link to="/" className="flex flex-row items-center py-4 pl-4">
+        <Link to="/strona-glowna" className="flex flex-row items-center py-4 pl-4">
           <ReactSVG src="/src/assets/home.svg" />
           <h1 className=" font-bold text-lg px-3">STRONA GŁÓWNA</h1>
         </Link>
@@ -49,7 +52,7 @@ const Navbar = () => {
             </Link>
           </li>
           <li className="pl-4 pt-4">
-            <Link to="/login" className="flex flex-row items-center">
+            <Link to="/login" onClick={logout} className="flex flex-row items-center">
               <ReactSVG src="/src/assets/logout.svg" />
               <h1 className="px-3">WYLOGUJ SIĘ</h1>
             </Link>

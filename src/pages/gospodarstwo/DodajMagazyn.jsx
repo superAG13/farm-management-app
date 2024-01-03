@@ -23,6 +23,7 @@ const DodajMagazyn = () => {
       const response = await fetch("/api/magazyn", {
         method: "POST",
         headers: {
+          authorization: `Bearer ${localStorage.getItem("authToken")}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(magazyn),

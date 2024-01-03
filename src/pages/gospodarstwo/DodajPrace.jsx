@@ -37,7 +37,13 @@ const DodajPrace = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/area");
+        const response = await fetch("/api/area", {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            "Content-Type": "application/json",
+          },
+        });
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -53,7 +59,13 @@ const DodajPrace = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/operator");
+        const response = await fetch("/api/operator", {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            "Content-Type": "application/json",
+          },
+        });
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -140,6 +152,7 @@ const DodajPrace = () => {
       const response = await fetch("/api/prace", {
         method: "POST",
         headers: {
+          authorization: `Bearer ${localStorage.getItem("authToken")}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(pracaDataToSend),

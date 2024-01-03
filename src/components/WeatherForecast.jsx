@@ -83,20 +83,37 @@ const WeatherForecast = () => {
   }
 
   return (
-    <div>
-      <h2>Weather Forecast for {location}</h2>
-      <ul>
-        {forecastData.map((forecast, index) => (
-          <li key={index}>
-            <strong>Day {index + 1}:</strong> Date: {new Date(forecast.dt * 1000).toLocaleDateString()}, Temperature: {forecast.main.temp}°C, Min Temp:{" "}
-            {forecast.main.temp_min}°C, Max Temp: {forecast.main.temp_max}°C, Humidity: {forecast.main.humidity}%, Wind Speed: {forecast.wind.speed} m/s, Wind Direction:{" "}
-            {windDirectionIcon(forecast.wind.deg)}, Pressure: {forecast.main.pressure} hPa
-            {forecast.weather && forecast.weather.length > 0 && (
-              <img src={`https://openweathermap.org/img/wn/${forecast.weather[0].icon}.png`} alt={forecast.weather[0].description} />
-            )}
-          </li>
-        ))}
-      </ul>
+    <div className="bg-white text-gray-800">
+      <div className="container mx-auto p-4">
+        <h2 className="text-2xl font-semibold text-center">Weather Forecast for {location}</h2>
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {forecastData.map((forecast, index) => (
+            <div key={index} className="max-w-md mx-auto bg-gray-100 rounded-xl shadow-md overflow-hidden p-4">
+              <div className="flex flex-row items-center justify-between">
+                <div className="text-center">
+                  <p className="text-lg font-semibold">Day {index + 1}</p>
+                  <p className="text-sm">{new Date(forecast.dt * 1000).toLocaleDateString()}</p>
+                </div>
+                <div className="my-2">
+                  {forecast.weather && forecast.weather.length > 0 && (
+                    <img className="h-16 w-16" src={`https://openweathermap.org/img/wn/${forecast.weather[0].icon}.png`} alt={forecast.weather[0].description} />
+                  )}
+                </div>
+                <div className="text-sm">
+                  <p>Temp: {forecast.main.temp}°C</p>
+                  <p>Min: {forecast.main.temp_min}°C</p>
+                  <p>Max: {forecast.main.temp_max}°C</p>
+                  <p>Humidity: {forecast.main.humidity}%</p>
+                  <p>
+                    Wind: {forecast.wind.speed} m/s {windDirectionIcon(forecast.wind.deg)}
+                  </p>
+                  <p>Pressure: {forecast.main.pressure} hPa</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

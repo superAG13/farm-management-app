@@ -60,7 +60,13 @@ function Maszyny() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/operator");
+        const response = await fetch("/api/operator", {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            "Content-Type": "application/json",
+          },
+        });
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -147,6 +153,9 @@ function Maszyny() {
       const response = await fetch(url, {
         method: method,
         body: formData,
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
       });
 
       // Check if the request was successful
@@ -182,6 +191,9 @@ function Maszyny() {
       try {
         const response = await fetch(`/api/maszyny/${selectedId}`, {
           method: "DELETE",
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
         });
 
         if (!response.ok) {
@@ -214,7 +226,13 @@ function Maszyny() {
 
   const loadMaszynyData = async () => {
     try {
-      const response = await fetch("/api/maszyny");
+      const response = await fetch("/api/maszyny", {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }

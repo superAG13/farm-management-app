@@ -1,4 +1,4 @@
-import {Routes, Route} from "react-router-dom";
+import {Route, Routes} from "react-router-dom";
 import NavBar from "./components/NavBar";
 import Home from "./pages/home/Home";
 import Gospodarstwo from "./pages/gospodarstwo/Gospodarstwo";
@@ -30,39 +30,74 @@ import DodajFinanse from "./pages/finanse/DodajFinanse";
 import EdytujFinanse from "./pages/finanse/EdytujFinanse";
 import DodajKalendarz from "./pages/kalendarz/DodajKalendarz";
 import EdytujKalendarz from "./pages/kalendarz/EdytujKalendarz";
+import Login from "./pages/login/Login";
+import {useLocation} from "react-router-dom";
+import {Navigate} from "react-router-dom";
+import {jwtDecode} from "jwt-decode";
+
+const isAuthenticated = () => {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) {
+    return false; // No token found, user is not logged in
+  }
+
+  try {
+    const decoded = jwtDecode(token);
+    // const userId = decoded.userId;
+    const currentTime = new Date().getTime() / 1000;
+
+    if (decoded.exp < currentTime) {
+      localStorage.removeItem("authToken"); // Token expired, remove it
+      return false;
+    }
+    return true; // Token is present and valid
+  } catch (error) {
+    // Handle error, token might be invalid
+    return false;
+  }
+};
+const ProtectedRoute = ({element: Element}) => {
+  return isAuthenticated() ? Element : <Navigate to="/login" />;
+};
+
 const App = () => {
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/login";
+
   return (
     <div className="flex flex-row">
       <LocationProvider>
-        <NavBar />
+        {!isLoginPage && <NavBar />}
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/gospodarstwo" element={<Gospodarstwo />} />
-          <Route path="/finanse" element={<Finanse />} />
-          <Route path="/kalendarz" element={<Kalendarz />} />
-          <Route path="/profil" element={<Profil />} />
-          <Route path="/pola" element={<Pola />} />
-          <Route path="/uprawy" element={<Uprawy />} />
-          <Route path="/postep" element={<Postep />} />
-          <Route path="/dodaj-pole" element={<DodajPole />} />
-          <Route path="/dodaj-uprawe" element={<DodajUprawe />} />
-          <Route path="/dodaj-prace" element={<DodajPrace />} />
-          <Route path="/edytuj-pole/:id" element={<EdytujPole />} />
-          <Route path="/edytuj-uprawe/:id" element={<EdytujUprawe />} />
-          <Route path="/operatorzy" element={<Operatorzy />} />
-          <Route path="/maszyny" element={<Maszyny />} />
-          <Route path="/srodki" element={<Srodki />} />
-          <Route path="/dodaj-magazyn" element={<DodajMagazyn />} />
-          <Route path="/edytuj-magazyn/:id" element={<EdytujMagazyn />} />
-          <Route path="/rosliny" element={<Rosliny />} />
-          <Route path="/nawozy" element={<Nawozy />} />
-          <Route path="/zbiory" element={<Zbiory />} />
-          <Route path="/dodaj-zbiory" element={<DodajZbiory />} />
-          <Route path="/edytuj-zbiory/:id" element={<EdytujZbiory />} />
-          <Route path="/dodaj-finanse" element={<DodajFinanse />} />
-          <Route path="/edytuj-finanse/:id" element={<EdytujFinanse />} />
-          <Route path="/dodaj-kalendarz" element={<DodajKalendarz />} />
-          <Route path="/edytuj-kalendarz/:id" element={<EdytujKalendarz />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/strona-glowna" element={<ProtectedRoute element={<Home />} />} />
+          <Route path="/gospodarstwo" element={<ProtectedRoute element={<Gospodarstwo />} />} />
+          <Route path="/finanse" element={<ProtectedRoute element={<Finanse />} />} />
+          <Route path="/kalendarz" element={<ProtectedRoute element={<Kalendarz />} />} />
+          <Route path="/profil" element={<ProtectedRoute element={<Profil />} />} />
+          <Route path="/pola" element={<ProtectedRoute element={<Pola />} />} />
+          <Route path="/uprawy" element={<ProtectedRoute element={<Uprawy />} />} />
+          <Route path="/postep" element={<ProtectedRoute element={<Postep />} />} />
+          <Route path="/dodaj-pole" element={<ProtectedRoute element={<DodajPole />} />} />
+          <Route path="/dodaj-uprawe" element={<ProtectedRoute element={<DodajUprawe />} />} />
+          <Route path="/dodaj-prace" element={<ProtectedRoute element={<DodajPrace />} />} />
+          <Route path="/edytuj-pole/:id" element={<ProtectedRoute element={<EdytujPole />} />} />
+          <Route path="/edytuj-uprawe/:id" element={<ProtectedRoute element={<EdytujUprawe />} />} />
+          <Route path="/operatorzy" element={<ProtectedRoute element={<Operatorzy />} />} />
+          <Route path="/maszyny" element={<ProtectedRoute element={<Maszyny />} />} />
+          <Route path="/srodki" element={<ProtectedRoute element={<Srodki />} />} />
+          <Route path="/dodaj-magazyn" element={<ProtectedRoute element={<DodajMagazyn />} />} />
+          <Route path="/edytuj-magazyn/:id" element={<ProtectedRoute element={<EdytujMagazyn />} />} />
+          <Route path="/rosliny" element={<ProtectedRoute element={<Rosliny />} />} />
+          <Route path="/nawozy" element={<ProtectedRoute element={<Nawozy />} />} />
+          <Route path="/zbiory" element={<ProtectedRoute element={<Zbiory />} />} />
+          <Route path="/dodaj-zbiory" element={<ProtectedRoute element={<DodajZbiory />} />} />
+          <Route path="/edytuj-zbiory/:id" element={<ProtectedRoute element={<EdytujZbiory />} />} />
+          <Route path="/dodaj-finanse" element={<ProtectedRoute element={<DodajFinanse />} />} />
+          <Route path="/edytuj-finanse/:id" element={<ProtectedRoute element={<EdytujFinanse />} />} />
+          <Route path="/dodaj-kalendarz" element={<ProtectedRoute element={<DodajKalendarz />} />} />
+          <Route path="/edytuj-kalendarz/:id" element={<ProtectedRoute element={<EdytujKalendarz />} />} />
           <Route path="*" element={<h1>404</h1>} />
         </Routes>
       </LocationProvider>
