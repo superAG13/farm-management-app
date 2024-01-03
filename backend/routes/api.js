@@ -3,6 +3,9 @@ const router = express.Router();
 const db = require("../db/database.js");
 const multer = require("multer");
 const path = require("path");
+
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./public/uploads/");
@@ -35,10 +38,11 @@ const authenticate = (req, res, next) => {
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 router.post("/login", async (req, res) => {
-  const {email, password} = req.body;
+  const {email, password, rememberMe} = req.body;
 
   const query = "SELECT * FROM uzytkownik WHERE email = ?";
-  db.query(query, [email], (err, results) => {
+  const values = [email];
+  db.query(query, values, (err, results) => {
     if (err) {
       return res.status(500).send("Error on the server.");
     }
@@ -51,26 +55,185 @@ router.post("/login", async (req, res) => {
     if (!validPassword) {
       return res.status(401).send("Invalid password.");
     }
-    const token = jwt.sign({userId: user.uzytkownik_id, email: user.email}, process.env.JWT_SECRET, {expiresIn: "1h"});
+    const expiresIn = rememberMe ? "7d" : "1h";
+    const token = jwt.sign({userId: user.uzytkownik_id, email: user.email}, process.env.JWT_SECRET, {expiresIn});
 
     res.json({token});
   });
 });
 
-router.post("/pola", authenticate, (req, res) => {
-  const user = req.user.userId;
-  const {nazwa, obreb, numer_ewidencyjny, area, polygon} = req.body;
+const transporter = nodemailer.createTransport({
+  service: "gmail", // Use your email service provider
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+router.post("/forgot", (req, res) => {
+  const {email} = req.body;
+  const token = crypto.randomBytes(20).toString("hex");
 
-  const query = "INSERT INTO dzialki (nazwa, obreb, numer_ewidencyjny, area, polygon,uzytkownik_id) VALUES (?, ?, ?, ?, ?, ?)";
-  const values = [nazwa, obreb, numer_ewidencyjny, area, polygon, user];
-
-  db.query(query, values, (err, result) => {
+  const query = "SELECT * FROM uzytkownik WHERE email = ?";
+  db.query(query, [email], (err, result) => {
     if (err) {
-      res.status(500).send("Error saving the 'dzialka'");
-      console.error(err);
+      console.error("Database query error:", err);
+      res.status(500).json({message: "Internal server error during database query."});
       return;
     }
-    res.status(201).json({id: result.insertId, ...req.body});
+
+    if (result.length === 0) {
+      res.status(400).json({message: "The email address is not associated with any account."});
+      return;
+    }
+
+    const user = result[0];
+    const updateQuery = `
+      UPDATE uzytkownik
+      SET reset_password_token = ?, reset_password_expires = ?
+      WHERE uzytkownik_id = ?`;
+
+    const expires = Date.now() + 3600000;
+    const expiresDate = new Date(expires);
+
+    db.query(updateQuery, [token, expiresDate, user.uzytkownik_id], (updateErr) => {
+      if (updateErr) {
+        console.error("Database update error:", updateErr);
+        res.status(500).json({message: "Internal server error during database update."});
+        return;
+      }
+
+      const resetUrl = `http://localhost:5173/reset-password/${token}`;
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: "Password Reset Link",
+        text: `You are receiving this because you have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process:\n\n${resetUrl}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`,
+      };
+
+      transporter.sendMail(mailOptions, (mailErr, info) => {
+        if (mailErr) {
+          console.error("Mail sending error:", mailErr);
+          res.status(500).json({message: "Unable to send reset email."});
+        } else {
+          res.status(200).json({message: "A reset email has been sent to " + user.email + "."});
+        }
+      });
+    });
+  });
+});
+
+router.post("/reset-password", async (req, res) => {
+  try {
+    const {token, newPassword} = req.body;
+
+    // Validate input (optional, but recommended)
+    if (!token || !newPassword) {
+      return res.status(400).json({message: "Missing token or new password."});
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const query = "UPDATE uzytkownik SET haslo = ?, reset_password_token = NULL, reset_password_expires = NULL WHERE reset_password_token = ?";
+    db.query(query, [hashedPassword, token], (err, result) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({message: "Internal server error during database operation."});
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({message: "User not found or token invalid."});
+      }
+
+      res.status(200).json({message: "Password successfully updated."});
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({message: "Unexpected server error."});
+  }
+});
+
+router.post("/register", (req, res) => {
+  const {email, haslo, imie, nazwisko} = req.body;
+  const hash = bcrypt.hashSync(haslo, 10);
+
+  db.beginTransaction((err) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error starting transaction");
+      return;
+    }
+
+    const queryUzytkownik = `
+      INSERT INTO uzytkownik (imie, nazwisko, email, haslo)
+      VALUES (?, ?, ?, ?);
+    `;
+    db.query(queryUzytkownik, [imie, nazwisko, email, hash], (err, resultUzytkownik) => {
+      if (err) {
+        db.rollback(() => {
+          console.error(err);
+          res.status(500).send("Error inserting into 'uzytkownik'");
+          return;
+        });
+      }
+      const uzytkownikId = resultUzytkownik.insertId;
+      const queryDane = `
+        INSERT INTO dane (email, uzytkownik_id)
+        VALUES (?, ?);
+      `;
+      db.query(queryDane, [email, uzytkownikId], (err, resultDane) => {
+        if (err) {
+          db.rollback(() => {
+            console.error(err);
+            res.status(500).send("Error inserting into 'dane'");
+            return;
+          });
+        }
+
+        const daneId = resultDane.insertId;
+        const updateUzytkownik = `
+          UPDATE uzytkownik SET dane_id = ? WHERE uzytkownik_id = ?;
+        `;
+        db.query(updateUzytkownik, [daneId, uzytkownikId], (err) => {
+          if (err) {
+            db.rollback(() => {
+              console.error(err);
+              res.status(500).send("Error updating 'uzytkownik'");
+              return;
+            });
+          }
+
+          const queryOperatorzy = `
+            INSERT INTO operatorzy (imie, nazwisko, stanowisko, dane_id, uzytkownik_id)
+            VALUES (?, ?, ?, ?, ?);
+          `;
+          db.query(queryOperatorzy, [imie, nazwisko, "Właściciel", daneId, uzytkownikId], (err, resultOperatorzy) => {
+            if (err) {
+              db.rollback(() => {
+                console.error(err);
+                res.status(500).send("Error inserting into 'operatorzy'");
+                return;
+              });
+            }
+
+            db.commit((err) => {
+              if (err) {
+                db.rollback(() => {
+                  console.error(err);
+                  res.status(500).send("Error committing transaction");
+                  return;
+                });
+              }
+
+              res.status(201).json({
+                operatorId: resultOperatorzy.insertId,
+                daneId: daneId,
+                uzytkownikId: uzytkownikId,
+              });
+            });
+          });
+        });
+      });
+    });
   });
 });
 

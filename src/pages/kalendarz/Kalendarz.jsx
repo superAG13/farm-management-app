@@ -20,7 +20,7 @@ function Event({event}) {
   );
 }
 
-function Kalendarz(props) {
+function Kalendarz() {
   const [myEventsList, setMyEventsList] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -124,20 +124,6 @@ function Kalendarz(props) {
           {showModal && <EventModal event={selectedEvent} onClose={() => setShowModal(false)} />}
         </div>
       </div>
-      {/* <div className="flex flex-col justify-between h-[820px] py-10">
-        <Link to="/dodaj-kalendarz" className="mx-2 my-2">
-          <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Dodaj</button>
-        </Link>
-        
-        <Link to={`/edytuj-finanse/${selectedId}`} className="mx-2 mb-2">
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Edytuj</button>
-        </Link>
-        <button
-          onClick={() => handleDelete(selectedId)}
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mx-2">
-          Usuń
-        </button>
-      </div> */}
     </div>
   );
 }

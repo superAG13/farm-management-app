@@ -1,11 +1,11 @@
 import "leaflet/dist/leaflet.css";
-import WeatherForecast from "../../components/WeatherForecast";
 import useGeoLocation from "../../hooks/useGeoLocation";
 import L from "leaflet";
-import {MapContainer, TileLayer, Marker, LayersControl, useMap} from "react-leaflet";
+import {MapContainer, TileLayer, Marker, LayersControl, useMap, Popup} from "react-leaflet";
 import {useEffect, useState, useRef} from "react";
 import {GeoJSON} from "react-leaflet";
 import useColors from "../../hooks/useColors";
+import moment from "moment";
 
 function groupByDzialkaId(data) {
   const grouped = {};
@@ -70,6 +70,52 @@ function AddLabels({polygonData, areaThreshold, minZoomLevel}) {
 
   return null;
 }
+const WeatherWidget = () => {
+  useEffect(() => {
+    // Funkcja do ładowania skryptu SDK
+    const loadSdk = () => {
+      if (document.getElementById("tomorrow-sdk")) {
+        if (window.__TOMORROW__) {
+          window.__TOMORROW__.renderWidget();
+        }
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.id = "tomorrow-sdk";
+      script.src = "https://www.tomorrow.io/v1/widget/sdk/sdk.bundle.min.js";
+      script.onload = () => {
+        if (window.__TOMORROW__) {
+          window.__TOMORROW__.renderWidget();
+        }
+      };
+
+      document.body.appendChild(script);
+    };
+
+    // Ładowanie SDK
+    loadSdk();
+  }, []);
+
+  return (
+    <div
+      className="tomorrow"
+      data-location-id="" // Wstaw odpowiednie ID lokalizacji
+      data-language="PL"
+      data-unit-system="METRIC"
+      data-skin="dark"
+      data-widget-type="upcoming"
+      style={{paddingBottom: "22px", position: "relative"}}>
+      <a
+        href="https://www.tomorrow.io/weather-api/"
+        rel="nofollow noopener noreferrer"
+        target="_blank"
+        style={{position: "absolute", bottom: 0, transform: "translateX(-50%)", left: "50%"}}>
+        <img alt="Powered by the Tomorrow.io Weather API" src="https://weather-website-client.tomorrow.io/img/powered-by.svg" width="250" height="18" />
+      </a>
+    </div>
+  );
+};
 function Home() {
   const colors = useColors();
   const {latitude, longitude} = useGeoLocation();
@@ -77,22 +123,32 @@ function Home() {
   const [fields, setFields] = useState([]);
   const [uprawy, setUprawy] = useState([]);
   const [polyUprawaData, setPolyUprawaData] = useState(null);
-  const [prace, setPrace] = useState([]);
-  const [polyPracaData, setPolyPracaData] = useState(null);
+  const markerRefs = useRef({});
   const customIcon = new L.DivIcon({
     className: "my-custom-pin",
     html: `<div style="background-color: #0000FF; width: 20px; height: 20px; border: 2px solid #000; border-radius: 50%;"></div>`,
     iconSize: [20, 20],
     iconAnchor: [10, 10],
   });
+  const [calendarEvents, setCalendarEvents] = useState([]);
   useEffect(() => {
     let fetchedFields = [];
-    fetch("/api/pola")
+    fetch("/api/pola", {
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         fetchedFields = groupByDzialkaId(data);
         setFields(fetchedFields);
-        return fetch("/api/polygons");
+        return fetch("/api/polygons", {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
       })
       .then((response) => response.json())
       .then((data) => {
@@ -109,12 +165,22 @@ function Home() {
           type: "FeatureCollection",
           features: features,
         });
-        return fetch("/api/uprawy");
+        return fetch("/api/uprawy", {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
       })
       .then((response) => response.json())
       .then((data) => {
         setUprawy(data);
-        return fetch("/api/poly-uprawy");
+        return fetch("/api/poly-uprawy", {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
       })
       .then((response) => response.json())
       .then((data) => {
@@ -131,34 +197,23 @@ function Home() {
           type: "FeatureCollection",
           features: features,
         });
-        return fetch("/api/prace");
-      })
-      .then((response) => response.json())
-      .then((data) => {
-        const formattedData = data.map((item) => {
-          return {
-            ...item,
-            data: new Date(item.data).toISOString().split("T")[0],
-          };
-        });
-        setPrace(formattedData);
-        return fetch("/api/poly-prace");
-      })
-      .then((response) => response.json())
-      .then((data) => {
-        const features = data.map((item) => {
-          const feature = JSON.parse(item.polygon);
-          const praca = prace.find((p) => p.numer_ewidencyjny === item.numer_ewidencyjny); // Example identifier
-          if (praca) {
-            feature.properties = {...feature.properties, ...praca};
-          }
-          return feature;
-        });
+        return fetch("/api/kalendarz", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const now = new Date();
+            const eventsWithDates = data.map((item) => ({
+              ...item,
+              start: new Date(item.start),
+              end: new Date(item.end),
+            }));
 
-        setPolyPracaData({
-          type: "FeatureCollection",
-          features: features,
-        });
+            setCalendarEvents(eventsWithDates);
+          });
       })
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
@@ -180,7 +235,7 @@ function Home() {
           <LayersControl.BaseLayer checked name="Satelita">
             <TileLayer attribution="Google Maps Satellite" url="https://www.google.cn/maps/vt?lyrs=y@189&gl=cn&x={x}&y={y}&z={z}" />
           </LayersControl.BaseLayer>
-          <LayersControl.Overlay name="Pola">
+          <LayersControl.Overlay name="Pola" checked>
             {polygonData && (
               <>
                 <GeoJSON data={polygonData} style={getFeatureStyle} />
@@ -189,11 +244,42 @@ function Home() {
             )}
           </LayersControl.Overlay>
           <LayersControl.Overlay name="Uprawy">{polyUprawaData && <GeoJSON data={polyUprawaData} style={getUprawaStyle} />}</LayersControl.Overlay>
-          <LayersControl.Overlay name="Prace">{polyPracaData && <GeoJSON data={polyPracaData} />}</LayersControl.Overlay>
         </LayersControl>
+        {calendarEvents.map((event, index) => {
+          // Find the feature that corresponds to the current event
+          const feature = polygonData.features.find((f) => f.properties.numer_ewidencyjny === event.numer_ewidencyjny);
+          if (feature) {
+            const polygon = L.polygon(feature.geometry.coordinates[0].map((coord) => [coord[1], coord[0]]));
+            const center = polygon.getBounds().getCenter();
+
+            return (
+              <Marker key={index} position={center}>
+                <Popup>
+                  <div className="mt-3 text-center">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">{event.title}</h3>
+                    <div className="mt-2 px-4 py-2">
+                      <p className="text-sm text-gray-500">Od: {moment(event.start).format("LLLL")}</p>
+                      <p className="text-sm text-gray-500">Do: {moment(event.end).format("LLLL")}</p>
+                      <p className="text-sm text-gray-500">Numer ewidencyjny: {event.numer_ewidencyjny}</p>
+                      <p className="text-sm text-gray-500">Operator: {event.operator}</p>
+                      <p className="text-sm text-gray-500">Opis: {event.opis}</p>
+                    </div>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          } else {
+            // If no matching feature was found, return null or some fallback UI
+            return null;
+          }
+        })}
         <Marker position={[latitude, longitude]} icon={customIcon} />
       </MapContainer>
-      <WeatherForecast />
+      <div className="flex flex-row w-full h-1/3 px-8 justify-center">
+        <div className="w-[650px] h-[300px] my-2">
+          <WeatherWidget />
+        </div>
+      </div>
     </div>
   );
 }

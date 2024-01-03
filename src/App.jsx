@@ -34,7 +34,9 @@ import Login from "./pages/login/Login";
 import {useLocation} from "react-router-dom";
 import {Navigate} from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
-
+import Register from "./pages/login/Register";
+import ForgotPassword from "./pages/login/ForgotPassword";
+import ResetPassword from "./pages/login/ResetPassword";
 const isAuthenticated = () => {
   const token = localStorage.getItem("authToken");
 
@@ -44,7 +46,6 @@ const isAuthenticated = () => {
 
   try {
     const decoded = jwtDecode(token);
-    // const userId = decoded.userId;
     const currentTime = new Date().getTime() / 1000;
 
     if (decoded.exp < currentTime) {
@@ -63,7 +64,9 @@ const ProtectedRoute = ({element: Element}) => {
 
 const App = () => {
   const location = useLocation();
-  const isLoginPage = location.pathname === "/login";
+  const path = location.pathname;
+
+  const isLoginPage = path === "/login" || path === "/register" || path === "/forgot-password" || path === "/" || path.startsWith("/reset-password/");
 
   return (
     <div className="flex flex-row">
@@ -71,6 +74,9 @@ const App = () => {
         {!isLoginPage && <NavBar />}
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/strona-glowna" element={<ProtectedRoute element={<Home />} />} />
           <Route path="/gospodarstwo" element={<ProtectedRoute element={<Gospodarstwo />} />} />
           <Route path="/finanse" element={<ProtectedRoute element={<Finanse />} />} />
@@ -98,7 +104,7 @@ const App = () => {
           <Route path="/edytuj-finanse/:id" element={<ProtectedRoute element={<EdytujFinanse />} />} />
           <Route path="/dodaj-kalendarz" element={<ProtectedRoute element={<DodajKalendarz />} />} />
           <Route path="/edytuj-kalendarz/:id" element={<ProtectedRoute element={<EdytujKalendarz />} />} />
-          <Route path="*" element={<h1>404</h1>} />
+          <Route path="*" element={<Login />} />
         </Routes>
       </LocationProvider>
     </div>
