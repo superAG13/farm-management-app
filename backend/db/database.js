@@ -8,10 +8,10 @@ const mysql = require("mysql");
 // });
 
 const connection = mysql.createConnection({
-  host: "myfarmdb.c5uc0208cp1t.eu-north-1.rds.amazonaws.com",
+  host: "myfarm.c5uc0208cp1t.eu-north-1.rds.amazonaws.com",
   user: "admin",
   password: "Dominika1",
-  database: "myfarmdb",
+  database: "",
 });
 
 connection.connect((err) => {
