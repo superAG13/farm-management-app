@@ -217,13 +217,13 @@ function Home() {
           .then((response) => response.json())
           .then((data) => {
             const now = new Date();
-            const eventsWithDates = data.map((item) => ({
-              ...item,
-              start: new Date(item.start),
-              end: new Date(item.end),
-            }));
+            const futureEvents = data.filter((item) => {
+              const startDate = new Date(item.start);
+              const endDate = new Date(item.end);
+              return endDate > now && startDate > now;
+            });
 
-            setCalendarEvents(eventsWithDates);
+            setCalendarEvents(futureEvents);
           });
       })
       .catch((error) => console.error("Error fetching data:", error));
