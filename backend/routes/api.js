@@ -272,6 +272,22 @@ router.put("/pola/:id", authenticate, (req, res) => {
     res.status(200).send({message: "Record updated successfully", id});
   });
 });
+router.post("/pola", authenticate, (req, res) => {
+  const user = req.user.userId;
+  const {nazwa, obreb, numer_ewidencyjny, area, polygon} = req.body;
+
+  const query = "INSERT INTO dzialki (nazwa,obreb,numer_ewidencyjny,area,polygon,uzytkownik_id) VALUES (?, ?, ?, ?, ?, ?)";
+  const values = [nazwa, obreb, numer_ewidencyjny, area, polygon, user];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      res.status(500).send("Error saving the 'pole'");
+      console.error(err);
+      return;
+    }
+    res.status(201).json({id: result.insertId, ...req.body});
+  });
+});
 router.get("/pola", authenticate, (req, res) => {
   const user = req.user.userId;
   const query = "SELECT * FROM dzialki WHERE uzytkownik_id = ?";

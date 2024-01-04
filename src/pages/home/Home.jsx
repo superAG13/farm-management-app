@@ -6,6 +6,20 @@ import {useEffect, useState, useRef} from "react";
 import {GeoJSON} from "react-leaflet";
 import useColors from "../../hooks/useColors";
 import moment from "moment";
+import "moment/locale/pl";
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
+
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41], // Size of the icon
+  iconAnchor: [12, 41], // Point of the icon which will correspond to marker's location
+  popupAnchor: [1, -34], // Point from which the popup should open relative to the iconAnchor
+  shadowSize: [41, 41], // Size of the icon shadow
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 function groupByDzialkaId(data) {
   const grouped = {};

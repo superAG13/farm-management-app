@@ -3,6 +3,11 @@ import {GiWheat} from "react-icons/gi";
 import {HiUser} from "react-icons/hi2";
 import {IoCalendarOutline} from "react-icons/io5";
 import {Link} from "react-router-dom";
+import home from "../assets/home.svg";
+import farm from "../assets/farm.svg";
+import finanse from "../assets/finanse.svg";
+import wyloguj from "../assets/logout.svg";
+
 const logout = () => {
   localStorage.removeItem("authToken");
 };
@@ -15,7 +20,7 @@ const Navbar = () => {
       </div>
       <div>
         <Link to="/strona-glowna" className="flex flex-row items-center py-4 pl-4">
-          <ReactSVG src="/src/assets/home.svg" />
+          <ReactSVG src={home} />
           <h1 className=" font-bold text-lg px-3">STRONA GŁÓWNA</h1>
         </Link>
       </div>
@@ -24,13 +29,13 @@ const Navbar = () => {
         <ul className=" font-semibold text-lg">
           <li>
             <Link to="/gospodarstwo" className="flex flex-row items-center pt-4 pl-4 ">
-              <ReactSVG src="/src/assets/farm.svg" />
+              <ReactSVG src={farm} />
               <h1 className="px-3">GOSPODARSTWO</h1>
             </Link>
           </li>
           <li>
             <Link to="/finanse" className="flex flex-row items-center pt-4 pl-4 ">
-              <ReactSVG src="/src/assets/finanse.svg" />
+              <ReactSVG src={finanse} />
               <h1 className="px-3">FINANSE</h1>
             </Link>
           </li>
@@ -53,7 +58,7 @@ const Navbar = () => {
           </li>
           <li className="pl-4 pt-4">
             <Link to="/login" onClick={logout} className="flex flex-row items-center">
-              <ReactSVG src="/src/assets/logout.svg" />
+              <ReactSVG src={wyloguj} />
               <h1 className="px-3">WYLOGUJ SIĘ</h1>
             </Link>
           </li>

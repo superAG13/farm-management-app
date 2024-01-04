@@ -131,7 +131,6 @@ function Profil() {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log(data);
       fillFormWithSelectedData(data[0]);
     } catch (error) {
       console.error("Error fetching data:", error);

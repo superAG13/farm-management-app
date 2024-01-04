@@ -86,6 +86,10 @@ function Uprawy() {
   const handleDelete = (uprawaId) => {
     fetch(`/api/uprawy/${uprawaId}`, {
       method: "DELETE",
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
     })
       .then((response) => {
         if (!response.ok) {

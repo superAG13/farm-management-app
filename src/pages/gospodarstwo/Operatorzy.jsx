@@ -195,7 +195,6 @@ function Operatorzy() {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log(data);
       setOperatorzyData(data);
     } catch (error) {
       console.error("Error fetching data:", error);

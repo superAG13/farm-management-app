@@ -49,7 +49,6 @@ const DodajPole = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-
     if (!validateForm()) {
       return;
     }

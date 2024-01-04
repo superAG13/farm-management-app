@@ -1,6 +1,15 @@
 import React from "react";
 import {Link} from "react-router-dom";
 import {ReactSVG} from "react-svg";
+import pola from "../../assets/pola.svg";
+import uprawy from "../../assets/uprawy.svg";
+import progres from "../../assets/progres.svg";
+import maszyny from "../../assets/maszyny.svg";
+import operatorzy from "../../assets/operatorzy.svg";
+import pesticide from "../../assets/pesticide.svg";
+import nawozy from "../../assets/nawozy.svg";
+import rosliny from "../../assets/rosliny.svg";
+import zbiory from "../../assets/zbiory.svg";
 
 function Box({link, logo, title}) {
   return (
@@ -14,19 +23,19 @@ const Gospodarstwo = () => {
   return (
     <div className="grid grid-rows-3 px-10 py-10">
       <div className="flex flex-row space-x-14">
-        <Box link="/pola" logo="src/assets/pola.svg" title="POLA" />
-        <Box link="/uprawy" logo="src/assets/uprawy.svg" title="UPRAWY" />
-        <Box link="/postep" logo="src/assets/progres.svg" title="POSTĘP PRAC" />
+        <Box link="/pola" logo={pola} title="POLA" />
+        <Box link="/uprawy" logo={uprawy} title="UPRAWY" />
+        <Box link="/postep" logo={progres} title="POSTĘP PRAC" />
       </div>
       <div className="flex flex-row space-x-14">
-        <Box link="/maszyny" logo="src/assets/maszyny.svg" title="MASZYNY" />
-        <Box link="/operatorzy" logo="src/assets/operatorzy.svg" title="OPERATORZY" />
+        <Box link="/maszyny" logo={maszyny} title="MASZYNY" />
+        <Box link="/operatorzy" logo={operatorzy} title="OPERATORZY" />
       </div>
       <div className="flex flex-row space-x-14">
-        <Box link="/srodki" logo="src/assets/pesticide.svg" title="ŚRODKI OCHRONY ROŚLIN" />
-        <Box link="/nawozy" logo="src/assets/nawozy.svg" title="NAWOZY" />
-        <Box link="/rosliny" logo="src/assets/rosliny.svg" title="ROŚLINY I ODMIANY" />
-        <Box link="/zbiory" logo="src/assets/zbiory.svg" title="ZBIORY" />
+        <Box link="/srodki" logo={pesticide} title="ŚRODKI OCHRONY ROŚLIN" />
+        <Box link="/nawozy" logo={nawozy} title="NAWOZY" />
+        <Box link="/rosliny" logo={rosliny} title="ROŚLINY I ODMIANY" />
+        <Box link="/zbiory" logo={zbiory} title="ZBIORY" />
       </div>
     </div>
   );
