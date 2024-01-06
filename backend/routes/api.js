@@ -44,21 +44,40 @@ router.post("/login", async (req, res) => {
   const values = [email];
   db.query(query, values, (err, results) => {
     if (err) {
-      return res.status(500).send("Error on the server.");
+      console.error(err); // Log the error for server monitoring
+      return res.status(500).json({error: "Error on the server."});
     }
 
     const user = results[0];
-    if (!user) {
-      return res.status(404).send("User not found.");
+    if (!user || !bcrypt.compareSync(password, user.haslo)) {
+      return res.status(401).json({error: "Invalid email or password."});
     }
-    const validPassword = bcrypt.compareSync(password, user.haslo);
-    if (!validPassword) {
-      return res.status(401).send("Invalid password.");
-    }
+
     const expiresIn = rememberMe ? "7d" : "1h";
     const token = jwt.sign({userId: user.uzytkownik_id, email: user.email}, process.env.JWT_SECRET, {expiresIn});
 
     res.json({token});
+  });
+});
+router.get("/check-email", (req, res) => {
+  const emailToCheck = req.query.email;
+
+  if (!emailToCheck) {
+    return res.status(400).json({error: "Email parameter is required"});
+  }
+
+  const query = "SELECT COUNT(*) AS count FROM uzytkownik WHERE email = ?";
+  const values = [emailToCheck];
+
+  db.query(query, values, (err, results) => {
+    if (err) {
+      console.error(err); // Log the error for server monitoring
+      return res.status(500).json({error: "Database error"});
+    }
+
+    // If count is greater than 0, the email exists in the database
+    const emailExists = results[0].count > 0;
+    res.json({exists: emailExists});
   });
 });
 

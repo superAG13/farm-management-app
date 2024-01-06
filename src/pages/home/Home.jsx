@@ -1,3 +1,4 @@
+import React from "react";
 import "leaflet/dist/leaflet.css";
 import useGeoLocation from "../../hooks/useGeoLocation";
 import L from "leaflet";
@@ -271,7 +272,6 @@ function Home() {
           <LayersControl.Overlay name="Uprawy">{polyUprawaData && <GeoJSON data={polyUprawaData} style={getUprawaStyle} />}</LayersControl.Overlay>
         </LayersControl>
         {calendarEvents.map((event, index) => {
-          // Find the feature that corresponds to the current event
           const feature = polygonData.features.find((f) => f.properties.numer_ewidencyjny === event.numer_ewidencyjny);
           if (feature) {
             const polygon = L.polygon(feature.geometry.coordinates[0].map((coord) => [coord[1], coord[0]]));
@@ -294,7 +294,6 @@ function Home() {
               </Marker>
             );
           } else {
-            // If no matching feature was found, return null or some fallback UI
             return null;
           }
         })}

@@ -1,4 +1,5 @@
-import React, {useState} from "react";
+import React from "react";
+import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import Layout from "./Layout";
 
@@ -8,10 +9,61 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const validateEmail = async (email) => {
+    setEmailError(""); // Zresetuj komunikat o błędzie
+    if (!email) {
+      setEmailError("Email jest wymagany");
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError("Nieprawidłowy format emaila");
+      return false;
+    }
+
+    try {
+      const response = await fetch(`/api/check-email?email=${encodeURIComponent(email)}`);
+      if (response.status === 404) {
+        setEmailError("Email nie istnieje w bazie danych");
+        return false;
+      }
+      if (!response.ok) {
+        throw new Error("Wystąpił błąd podczas weryfikacji emaila");
+      }
+      return true;
+    } catch (error) {
+      console.error("Błąd podczas walidacji emaila", error);
+      setEmailError("Wystąpił błąd podczas walidacji emaila");
+      return false;
+    }
+  };
+
+  const validatePassword = (password) => {
+    if (!password) {
+      setPasswordError("Hasło jest wymagane");
+      return false;
+    }
+    if (password.length < 5) {
+      setPasswordError("Hasło musi mieć przynajmniej 5 znaków");
+      return false;
+    }
+    setPasswordError("");
+    return true;
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    setEmailError("");
+    setPasswordError("");
+
+    const isEmailValid = await validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+
+    if (!isEmailValid || !isPasswordValid) {
+      return;
+    }
 
     try {
       const response = await fetch("/api/login", {
@@ -22,15 +74,38 @@ const Login = () => {
         body: JSON.stringify({email, password, rememberMe}),
       });
 
-      if (!response.ok) {
-        throw new Error("Login failed");
-      }
+      const data = await response.json(); // Pobierz dane odpowiedzi niezależnie od statusu odpowiedzi
 
-      const data = await response.json();
-      localStorage.setItem("authToken", data.token);
-      navigate("/strona-glowna");
+      if (response.ok) {
+        localStorage.setItem("authToken", data.token);
+        navigate("/strona-glowna");
+      } else {
+        // Obsłuż różne statusy odpowiedzi od serwera
+        switch (response.status) {
+          case 400:
+            // Błędne żądanie
+            setError(data.message || "Nieprawidłowe żądanie. Proszę sprawdzić wprowadzone dane.");
+            break;
+          case 401:
+            // Nieautoryzowany
+            setError(data.message || "Nieprawidłowy email lub hasło.");
+            break;
+          case 403:
+            // Zakazany
+            setError(data.message || "Nie masz uprawnień do logowania.");
+            break;
+          case 404:
+            // Nie znaleziono
+            setError(data.message || "Nie znaleziono użytkownika.");
+            break;
+          default:
+            // Inne błędy
+            setError(data.message || "Logowanie nie powiodło się. Proszę spróbować później.");
+        }
+      }
     } catch (error) {
-      setError(error.message);
+      console.error("Błąd logowania:", error);
+      setError("Wystąpił błąd podczas próby logowania. Proszę spróbować później.");
     }
   };
 
@@ -51,6 +126,7 @@ const Login = () => {
             className="w-full mt-1 p-2 border border-gray-300 rounded"
             required
           />
+          {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
         </div>
         <div>
           <label htmlFor="password" className="text-sm font-medium">
@@ -65,6 +141,7 @@ const Login = () => {
             className="w-full mt-1 p-2 border border-gray-300 rounded"
             required
           />
+          {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center">

@@ -1,3 +1,4 @@
+import React from "react";
 import {useState, useEffect} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 const convertDateToYYYYMMDD = (dateString) => {
@@ -42,7 +43,7 @@ const EdytujFinanse = () => {
           data: convertDateToYYYYMMDD(data[0].data),
         });
       })
-      .catch((error) => console.error("Error fetching zbiory:", error));
+      .catch((error) => console.error("Error fetching finanse:", error));
   }, [id]);
   const handleChange = async (e) => {
     setFinanse({...finanse, [e.target.name]: e.target.value});

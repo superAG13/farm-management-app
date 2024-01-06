@@ -1,3 +1,4 @@
+import React from "react";
 import {useState, useEffect} from "react";
 import {MapContainer, TileLayer, GeoJSON, WMSTileLayer} from "react-leaflet";
 import "leaflet-draw/dist/leaflet.draw.css";

@@ -1,3 +1,4 @@
+import React from "react";
 import background from "../../assets/background.jpg";
 import {GiWheat} from "react-icons/gi";
 import {Link} from "react-router-dom";

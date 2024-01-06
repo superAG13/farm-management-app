@@ -1,3 +1,4 @@
+import React from "react";
 import {useState} from "react";
 import {MapContainer, TileLayer, WMSTileLayer} from "react-leaflet";
 import "leaflet-draw/dist/leaflet.draw.css";
@@ -87,7 +88,7 @@ const DodajPole = () => {
   return (
     <div className="flex border rounded-md bg-white h-3/6 m-4 px-4 py-6 flex-row w-5/6">
       <div className="flex-1">
-        <form onSubmit={handleSubmit} className="p-8">
+        <form onSubmit={handleSubmit} className="p-8" data-testid="form">
           <div className="mb-4">
             <label htmlFor="nazwa" className="block text-sm font-medium mb-1">
               Nazwa

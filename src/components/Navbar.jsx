@@ -20,7 +20,7 @@ const Navbar = () => {
       </div>
       <div>
         <Link to="/strona-glowna" className="flex flex-row items-center py-4 pl-4">
-          <ReactSVG src={home} />
+          <ReactSVG src="../assets/home.svg" />
           <h1 className=" font-bold text-lg px-3">STRONA GŁÓWNA</h1>
         </Link>
       </div>
@@ -29,13 +29,13 @@ const Navbar = () => {
         <ul className=" font-semibold text-lg">
           <li>
             <Link to="/gospodarstwo" className="flex flex-row items-center pt-4 pl-4 ">
-              <ReactSVG src={farm} />
+              <ReactSVG src="../assets/farm.svg" />
               <h1 className="px-3">GOSPODARSTWO</h1>
             </Link>
           </li>
           <li>
             <Link to="/finanse" className="flex flex-row items-center pt-4 pl-4 ">
-              <ReactSVG src={finanse} />
+              <ReactSVG src="../assets/finanse.svg" />
               <h1 className="px-3">FINANSE</h1>
             </Link>
           </li>
@@ -58,7 +58,7 @@ const Navbar = () => {
           </li>
           <li className="pl-4 pt-4">
             <Link to="/login" onClick={logout} className="flex flex-row items-center">
-              <ReactSVG src={wyloguj} />
+              <ReactSVG src="../assets/logout.svg" />
               <h1 className="px-3">WYLOGUJ SIĘ</h1>
             </Link>
           </li>

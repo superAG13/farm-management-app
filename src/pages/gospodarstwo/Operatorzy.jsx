@@ -1,3 +1,4 @@
+import React from "react";
 import {useState} from "react";
 import {FaCamera} from "react-icons/fa";
 import {useEffect} from "react";
