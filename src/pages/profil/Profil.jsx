@@ -4,6 +4,7 @@ import {FaCamera} from "react-icons/fa";
 import {useEffect} from "react";
 
 function Profil() {
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [uzytkownik, setUzytkownik] = useState({
     imie: "",
     nazwisko: "",
@@ -65,7 +66,7 @@ function Profil() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log(uzytkownik);
     // Create an instance of FormData
     const formData = new FormData();
 
@@ -114,6 +115,7 @@ function Profil() {
         haslo: "",
       });
       loadUzytkownikData();
+      setConfirmNewPassword("");
     } catch (error) {
       console.error("Error:", error);
     }
@@ -330,6 +332,36 @@ function Profil() {
             </div>
           </div>
           <h1 className="mb-2 text-lg font-bold opacity-80">Zmień hasło</h1>
+          <div className="flex flex-row">
+            <div className="mb-4 w-1/2">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="haslo">
+                Nowe hasło
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="haslo"
+                type="password"
+                placeholder="Nowe hasło"
+                name="haslo"
+                value={uzytkownik.haslo}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="mb-4 ml-4 w-1/2">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmNewPassword">
+                Potwierdź nowe hasło
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="confirmNewPassword"
+                type="password"
+                placeholder="Potwierdź nowe hasło"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
           <div className="flex items-center justify-end">
             <button className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`} type="submit">
               {"Edytuj"}

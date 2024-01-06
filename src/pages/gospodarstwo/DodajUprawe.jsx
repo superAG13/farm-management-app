@@ -263,7 +263,7 @@ const DodajUprawe = () => {
         {latitude && longitude && (
           <MapContainer center={[latitude, longitude]} zoom={13}>
             <LeafletDraw onAreaChange={handleAreaChange} onSavePolygon={handleSavePolygon} />
-            <TileLayer attribution="Google Maps Satellite" url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}" />
+            <TileLayer attribution="Google Maps Satellite" url="https://www.google.cn/maps/vt?lyrs=y@189&gl=cn&x={x}&y={y}&z={z}" />
             <WMSTileLayer
               url="https://integracja.gugik.gov.pl/cgi-bin/KrajowaIntegracjaEwidencjiGruntow"
               layers="dzialki,numery_dzialek"

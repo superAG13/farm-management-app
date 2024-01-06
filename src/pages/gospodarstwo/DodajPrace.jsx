@@ -93,45 +93,6 @@ const DodajPrace = () => {
     }
     setMapKey(Date.now());
   }, [pracaData.numer_ewidencyjny, fieldData]);
-  // const validateForm = () => {
-  //   let isValid = true;
-  //   let errors = {};
-
-  //   // Checking if numerical identifier is provided and valid
-  //   if (!pracaData.numer_ewidencyjny) {
-  //     isValid = false;
-  //     errors.numer_ewidencyjny = "Wybierz numer ewidencyjny.";
-  //   }
-
-  //   // Validating work type
-  //   if (!pracaData.praca) {
-  //     isValid = false;
-  //     errors.praca = "Wpisz rodzaj pracy.";
-  //   }
-
-  //   // Validate work surface area
-  //   const workSurfaceArea = parseFloat(pracaData.powierzchnia_pracy);
-  //   if (isNaN(workSurfaceArea) || workSurfaceArea <= 0) {
-  //     isValid = false;
-  //     errors.powierzchnia_pracy = "Podaj prawidłową powierzchnię pracy.";
-  //   }
-
-  //   // Validate date format (dd.mm.yyyy)
-  //   const dateRegex = /^\d{2}\.\d{2}\.\d{4}$/;
-  //   if (!dateRegex.test(pracaData.data)) {
-  //     isValid = false;
-  //     errors.data = "Podaj datę w formacie dd.mm.rrrr.";
-  //   }
-
-  //   // Validate operator selection
-  //   if (!pracaData.operator) {
-  //     isValid = false;
-  //     errors.operator = "Wybierz operatora.";
-  //   }
-
-  //   setErrorMessage(errors);
-  //   return isValid;
-  // };
   const [powierzchnia_pracy, setPowierzchniaPracy] = useState("Wyrysuj obszar pracy");
   const handleAreaChange = (newArea) => {
     setPowierzchniaPracy(newArea);
@@ -258,11 +219,6 @@ const DodajPrace = () => {
               ))}
             </select>
           </div>
-          {/* {errorMessage.numer_ewidencyjny && <p className="text-red-500">{errorMessage.numer_ewidencyjny}</p>}
-          {errorMessage.praca && <p className="text-red-500">{errorMessage.praca}</p>}
-          {errorMessage.powierzchnia_pracy && <p className="text-red-500">{errorMessage.powierzchnia_pracy}</p>}
-          {errorMessage.data && <p className="text-red-500">{errorMessage.data}</p>}
-          {errorMessage.operator && <p className="text-red-500">{errorMessage.operator}</p>} */}
           <div className="flex items-center justify-end">
             <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-4">
               Dodaj
@@ -275,7 +231,7 @@ const DodajPrace = () => {
         {latitude && longitude && (
           <MapContainer center={[latitude, longitude]} zoom={13}>
             <LeafletDraw onAreaChange={handleAreaChange} onSavePolygon={handleSavePolygon} />
-            <TileLayer attribution="Google Maps Satellite" url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}" />
+            <TileLayer attribution="Google Maps Satellite" url="https://www.google.cn/maps/vt?lyrs=y@189&gl=cn&x={x}&y={y}&z={z}" />
             <WMSTileLayer
               url="https://integracja.gugik.gov.pl/cgi-bin/KrajowaIntegracjaEwidencjiGruntow"
               layers="dzialki,numery_dzialek"

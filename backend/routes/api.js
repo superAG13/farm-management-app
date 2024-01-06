@@ -1263,39 +1263,20 @@ router.get("/uzytkownik", authenticate, (req, res) => {
   });
 });
 
-router.put("/uzytkownik/:uzytkownikId", authenticate, upload.single("image"), (req, res) => {
-  const user = req.user.userId;
-  const {uzytkownikId} = req.params;
-  const {
-    // Fields for the 'dane' table
-    ulica,
-    numer_domu,
-    kod_pocztowy,
-    miejscowosc,
-    kraj,
-    wojewodztwo,
-    telefon,
+router.put("/uzytkownik/:uzytkownikId", authenticate, upload.single("image"), async (req, res) => {
+  try {
+    const user = req.user.userId;
+    const {uzytkownikId} = req.params;
+    const {ulica, numer_domu, kod_pocztowy, miejscowosc, kraj, wojewodztwo, telefon, imie, nazwisko, email, haslo, dane_id} = req.body;
 
-    imie,
-    nazwisko,
-    email,
-    haslo,
-    dane_id, // This should be provided in the body to know which 'dane' record to update
-  } = req.body;
-
-  let img;
-  if (req.file) {
-    const filename = req.file.filename; // This is just the filename part
-    img = `/${filename}`; // This is the path you'll use in the <img> tag in your front end
-  }
-
-  // Start transaction
-  db.beginTransaction((err) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send("Error starting transaction");
-      return;
+    let imgPath = null;
+    if (req.file) {
+      const filename = req.file.filename;
+      imgPath = `/${filename}`; // Construct the path for the image
     }
+
+    // Start transaction
+    await db.beginTransaction();
 
     // Update 'dane' table
     const queryDane = `
@@ -1304,70 +1285,46 @@ router.put("/uzytkownik/:uzytkownikId", authenticate, upload.single("image"), (r
       WHERE dane_id = ? AND uzytkownik_id = ?
     `;
     const valuesDane = [ulica, numer_domu, kod_pocztowy, miejscowosc, kraj, wojewodztwo, email, telefon, dane_id, user];
+    await db.query(queryDane, valuesDane);
 
-    db.query(queryDane, valuesDane, (err, resultDane) => {
-      if (err) {
-        db.rollback(() => {
-          console.error(err);
-          res.status(500).send("Error updating 'dane'");
-        });
-        return;
-      }
+    // Hash password
+    const hashedPassword = await bcrypt.hash(haslo, 10);
 
-      const queryUzytkownik = `
-        UPDATE uzytkownik
-        SET imie = ?, nazwisko = ?, email = ?,haslo = ?
-        WHERE uzytkownik_id = ?
-      `;
-      const valuesUzytkownik = [imie, nazwisko, email, haslo, user];
+    // Update 'uzytkownik' table
+    const queryUzytkownik = `
+      UPDATE uzytkownik
+      SET imie = ?, nazwisko = ?, email = ?, haslo = ?
+      WHERE uzytkownik_id = ?
+    `;
+    const valuesUzytkownik = [imie, nazwisko, email, hashedPassword, user];
+    await db.query(queryUzytkownik, valuesUzytkownik);
 
-      db.query(queryUzytkownik, valuesUzytkownik, (err, resultUzytkownik) => {
-        if (err) {
-          db.rollback(() => {
-            console.error(err);
-            res.status(500).send("Error updating 'operatorzy'");
-          });
-          return;
-        }
-
-        const queryImg = `
-          UPDATE operatorzy
+    // Update 'operatorzy' table with the new image path if available
+    if (imgPath) {
+      const queryOperatorzy = `
+         UPDATE operatorzy
           SET imie=?,nazwisko=?,img = COALESCE(?, img)
           WHERE uzytkownik_id = ? AND stanowisko='Właściciel'
-        `;
-        const valuesImg = [imie, nazwisko, img, user];
+      `;
+      await db.query(queryOperatorzy, [imgPath, user]);
+    }
 
-        db.query(queryImg, valuesImg, (err, resultImg) => {
-          if (err) {
-            db.rollback(() => {
-              console.error(err);
-              res.status(500).send("Error updating 'dane'");
-            });
-            return;
-          }
+    // Commit the transaction
+    await db.commit();
 
-          // If everything is successful, commit the transaction
-          db.commit((err) => {
-            if (err) {
-              db.rollback(() => {
-                console.error(err);
-                res.status(500).send("Error committing transaction");
-              });
-              return;
-            }
-
-            // Send back the ID of the updated operator and dane entry
-            res.status(200).json({
-              uzytkownikId: uzytkownikId,
-              daneId: dane_id,
-              ...req.body,
-              img: img ? img : req.body.img, // If a new image was not uploaded, keep the old one
-            });
-          });
-        });
-      });
+    // Send back the response
+    res.status(200).json({
+      uzytkownikId: uzytkownikId,
+      daneId: dane_id,
+      ...req.body,
+      img: imgPath ? imgPath : req.body.img,
     });
-  });
+  } catch (err) {
+    // Rollback in case of error
+    await db.rollback();
+    console.error(err);
+    res.status(500).send("Error processing your request");
+  }
 });
 
 module.exports = router;

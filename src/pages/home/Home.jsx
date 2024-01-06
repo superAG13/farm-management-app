@@ -256,7 +256,7 @@ function Home() {
   }
   return (
     <div className="flex flex-col w-5/6 h-1/3 px-8 space-beetween">
-      <MapContainer center={[latitude, longitude]} zoom={16} style={{height: "400px", width: "100%"}}>
+      <MapContainer center={[latitude, longitude]} zoom={11} style={{height: "400px", width: "100%"}}>
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Satelita">
             <TileLayer attribution="Google Maps Satellite" url="https://www.google.cn/maps/vt?lyrs=y@189&gl=cn&x={x}&y={y}&z={z}" />
