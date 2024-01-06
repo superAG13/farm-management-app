@@ -1231,21 +1231,28 @@ router.get("/kalendarz/:id", authenticate, (req, res) => {
 router.put("/kalendarz/:id", authenticate, (req, res) => {
   const user = req.user.userId;
   const {id} = req.params;
-  const {title, start, end, numer_ewidencyjny, operator, opis, uzytkownik_id} = req.body;
+  const {title, start, end, numer_ewidencyjny, operator, opis} = req.body;
 
   const query = `
     UPDATE kalendarz
-    SET title = ?, start = ?, end = ?, numer_ewidencyjny = ?, operator = ?,opis = ?, uzytkownik_id = ?
+    SET title = ?, start = ?, end = ?, numer_ewidencyjny = ?, operator = ?, opis = ?, uzytkownik_id = ?
     WHERE kalendarz_id = ? AND uzytkownik_id = ?
   `;
-  const values = [title, start, end, numer_ewidencyjny, operator, opis, uzytkownik_id, id, user];
+  const values = [title, start, end, numer_ewidencyjny, operator, opis, user, id, user];
 
   db.query(query, values, (err, result) => {
     if (err) {
-      res.status(500).send("Error updating the record");
+      console.error("Error updating the record:", err);
+      res.status(500).json({
+        message: "Error updating the record",
+        error: err.message,
+      });
       return;
     }
-    res.status(200).send({message: "Record updated successfully", id});
+    res.status(200).json({
+      message: "Record updated successfully",
+      id,
+    });
   });
 });
 
@@ -1306,7 +1313,7 @@ router.put("/uzytkownik/:uzytkownikId", authenticate, upload.single("image"), as
           SET imie=?,nazwisko=?,img = COALESCE(?, img)
           WHERE uzytkownik_id = ? AND stanowisko='Właściciel'
       `;
-      await db.query(queryOperatorzy, [imgPath, user]);
+      await db.query(queryOperatorzy, [imie, nazwisko, imgPath, user]);
     }
 
     // Commit the transaction

@@ -46,18 +46,19 @@ function Profil() {
 
   const fillFormWithSelectedData = (uzytkownikData) => {
     setUzytkownik({
-      imie: uzytkownikData.imie,
-      nazwisko: uzytkownikData.nazwisko,
-      ulica: uzytkownikData.ulica,
-      numer_domu: uzytkownikData.numer_domu,
-      kod_pocztowy: uzytkownikData.kod_pocztowy,
-      miejscowosc: uzytkownikData.miejscowosc,
-      wojewodztwo: uzytkownikData.wojewodztwo,
-      kraj: uzytkownikData.kraj,
-      telefon: uzytkownikData.telefon,
-      email: uzytkownikData.email,
-      haslo: uzytkownikData.haslo,
-      dane_id: uzytkownikData.dane_id,
+      //if null set empty string to avoid controlled/uncontrolled input error
+      imie: uzytkownikData.imie || "",
+      nazwisko: uzytkownikData.nazwisko || "",
+      ulica: uzytkownikData.ulica || "",
+      numer_domu: uzytkownikData.numer_domu || "",
+      kod_pocztowy: uzytkownikData.kod_pocztowy || "",
+      miejscowosc: uzytkownikData.miejscowosc || "",
+      wojewodztwo: uzytkownikData.wojewodztwo || "",
+      kraj: uzytkownikData.kraj || "",
+      telefon: uzytkownikData.telefon || "",
+      email: uzytkownikData.email || "",
+      haslo: uzytkownikData.haslo || "",
+      dane_id: uzytkownikData.dane_id || "",
     });
     const photoUrlFromDatabase = `http://localhost:5000/uploads/${uzytkownikData.img}`;
     setPreviewUrl(photoUrlFromDatabase);

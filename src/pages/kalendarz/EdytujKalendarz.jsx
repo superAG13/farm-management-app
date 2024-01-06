@@ -1,6 +1,7 @@
 import React from "react";
 import {useState, useEffect} from "react";
 import {useNavigate, useParams} from "react-router-dom";
+import moment from "moment";
 const convertDateToLocal = (dateString) => {
   const date = new Date(dateString);
   const timeZoneOffset = date.getTimezoneOffset() * 60000;
@@ -27,7 +28,6 @@ const EdytujKalendarz = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Fetched data:", data[0]); // Check the structure and content
         setKalendarz({
           title: data[0].title,
           start: convertDateToLocal(data[0].start),
@@ -89,7 +89,14 @@ const EdytujKalendarz = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    const kalendarz = {
+      title: e.target.title.value,
+      start: moment(e.target.start.value).format("YYYY-MM-DD HH:mm:ss"),
+      end: moment(e.target.end.value).format("YYYY-MM-DD HH:mm:ss"),
+      numer_ewidencyjny: e.target.numer_ewidencyjny.value,
+      operator: e.target.operator.value,
+      opis: e.target.opis.value,
+    };
     fetch(`/api/kalendarz/${id}`, {
       method: "PUT",
       headers: {
