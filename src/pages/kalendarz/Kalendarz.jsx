@@ -77,6 +77,8 @@ function Kalendarz() {
           <div className="mt-3 text-center">
             <h3 className="text-lg leading-6 font-medium text-gray-900">{event.title}</h3>
             <div className="mt-2 px-7 py-3">
+              <p className="text-sm text-gray-500">Data rozpoczęcia: {event.start.toLocaleString()}</p>
+              <p className="text-sm text-gray-500">Data zakończenia: {event.end.toLocaleString()}</p>
               <p className="text-sm text-gray-500">Numer ewidencyjny: {event.numer_ewidencyjny}</p>
               <p className="text-sm text-gray-500">Operator: {event.operator}</p>
               <p className="text-sm text-gray-500">Opis: {event.opis}</p>
