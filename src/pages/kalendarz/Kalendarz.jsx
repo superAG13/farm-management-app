@@ -88,10 +88,10 @@ function Kalendarz() {
               <button
                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 onClick={() => handleDeleteEvent(event.kalendarz_id)}>
-                Delete
+                Usuń
               </button>
               <button className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onClick={onClose}>
-                Close
+                Zamknij
               </button>
             </div>
           </div>

@@ -73,7 +73,6 @@ function Finanse() {
     return {koszta, przychod, zysk};
   };
 
-  // Calculate the summary from the financial data
   const summary = calculateSummary();
 
   return (

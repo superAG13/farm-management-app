@@ -309,7 +309,7 @@ router.post("/pola", authenticate, (req, res) => {
 });
 router.get("/pola", authenticate, (req, res) => {
   const user = req.user.userId;
-  const query = "SELECT * FROM dzialki WHERE uzytkownik_id = ?";
+  const query = "SELECT d.*, u.uprawa FROM dzialki d LEFT JOIN uprawa u ON d.numer_ewidencyjny = u.numer_ewidencyjny WHERE d.uzytkownik_id=?";
   const values = [user];
   db.query(query, values, (err, results) => {
     if (err) {
