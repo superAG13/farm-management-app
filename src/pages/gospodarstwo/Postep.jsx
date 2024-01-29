@@ -7,6 +7,7 @@ import {useEffect, useState} from "react";
 import "./style.css";
 import L from "leaflet";
 import {GeoJSON} from "react-leaflet";
+import moment from "moment-timezone";
 function AddLabels({polygonData, areaThreshold, minZoomLevel, activePolygon}) {
   const map = useMap();
 
@@ -96,7 +97,7 @@ function Postep() {
         const formattedData = data.map((item) => {
           return {
             ...item,
-            data: new Date(item.data).toISOString().split("T")[0],
+            data: moment(item.data).format("YYYY-MM-DD"),
           };
         });
         setPrace(formattedData);

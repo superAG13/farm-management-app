@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
 import "../gospodarstwo/style.css";
+import moment from "moment-timezone";
 function Finanse() {
   const [finanse, setFinanse] = useState([]);
   const [isScrollable, setIsScrollable] = useState(false);
@@ -15,10 +16,11 @@ function Finanse() {
     })
       .then((response) => response.json())
       .then((data) => {
+        console.log("Fetched data:", data); // Check the structure and content
         const formattedData = data.map((item) => {
           return {
             ...item,
-            data: new Date(item.data).toISOString().split("T")[0],
+            data: moment(item.data).format("YYYY-MM-DD"),
           };
         });
         setFinanse(formattedData);

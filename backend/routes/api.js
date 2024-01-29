@@ -1133,14 +1133,14 @@ router.post("/finanse", authenticate, (req, res) => {
 router.put("/finanse/:id", authenticate, (req, res) => {
   const user = req.user.userId;
   const {id} = req.params;
-  const {nazwa, rodzaj_dokumentu, opis, wartosc, data, uzytkownik_id} = req.body;
+  const {nazwa, rodzaj_dokumentu, opis, wartosc, data} = req.body;
 
   const query = `
     UPDATE finanse
-    SET nazwa = ?, rodzaj_dokumentu = ?, opis = ?, wartosc = ?, data = ?, uzytkownik_id = ?
+    SET nazwa = ?, rodzaj_dokumentu = ?, opis = ?, wartosc = ?, data = ?
     WHERE dokument_id = ? AND uzytkownik_id = ?
   `;
-  const values = [nazwa, rodzaj_dokumentu, opis, wartosc, data, uzytkownik_id, id, user];
+  const values = [nazwa, rodzaj_dokumentu, opis, wartosc, data, id, user];
 
   db.query(query, values, (err, result) => {
     if (err) {

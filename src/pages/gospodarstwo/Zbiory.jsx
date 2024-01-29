@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
 import "./style.css";
+import moment from "moment-timezone";
 function Zbiory() {
   const [zbiory, setZbiory] = useState([]);
   const [isScrollable, setIsScrollable] = useState(false);
@@ -17,7 +18,7 @@ function Zbiory() {
         const formattedData = data.map((item) => {
           return {
             ...item,
-            data_sprzedazy: new Date(item.data_sprzedazy).toISOString().split("T")[0],
+            data_sprzedazy: moment(item.data_sprzedazy).format("YYYY-MM-DD"),
           };
         });
         setZbiory(formattedData);

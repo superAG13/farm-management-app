@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
 import "./style.css";
+import moment from "moment-timezone";
 function Rosliny() {
   const [rosliny, setRosliny] = useState([]);
   const [isScrollable, setIsScrollable] = useState(false);
@@ -17,7 +18,7 @@ function Rosliny() {
         const formattedData = data.map((item) => {
           return {
             ...item,
-            data_zakupu: new Date(item.data_zakupu).toISOString().split("T")[0],
+            data_zakupu: moment(item.data_zakupu).format("YYYY-MM-DD"),
           };
         });
         setRosliny(formattedData);
