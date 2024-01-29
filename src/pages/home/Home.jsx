@@ -233,7 +233,6 @@ function Home() {
           .then((data) => {
             const now = new Date();
             const futureEvents = data.filter((item) => {
-              const startDate = new Date(item.start);
               const endDate = new Date(item.end);
               return endDate > now;
             });
