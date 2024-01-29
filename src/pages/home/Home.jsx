@@ -235,7 +235,7 @@ function Home() {
             const futureEvents = data.filter((item) => {
               const startDate = new Date(item.start);
               const endDate = new Date(item.end);
-              return endDate > now && startDate > now;
+              return endDate > now;
             });
 
             setCalendarEvents(futureEvents);
